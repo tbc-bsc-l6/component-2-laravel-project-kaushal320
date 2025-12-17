@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Models\Module;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -17,7 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $user = $request->user();
 
         if ($user && isset($user->role) && $user->role === 'admin') {
-            return Inertia::render('Admin/Dashboard');
+            return Inertia::render('Admin/Dashboard', [
+                'modules' => Module::all(),
+            ]);
         }
 
         return Inertia::render('dashboard');
@@ -28,7 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
-        return Inertia::render('Admin/Dashboard');
+        return Inertia::render('Admin/Dashboard', [
+            'modules' => Module::all(),
+        ]);
     })->name('dashboard');
 
     Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
