@@ -21,4 +21,14 @@ class Module extends Model
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(User::class, 'module_teacher', 'module_id', 'teacher_id');
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'module_student', 'module_id', 'student_id');
+    }
 }

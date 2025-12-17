@@ -139,107 +139,111 @@ export default function AdminDashboard({
                 </Card>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                    <Card className="group cursor-pointer border-indigo-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-400/40">
-                        <CardHeader>
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="rounded-lg bg-gradient-to-br from-indigo-500 to-blue-400 p-3 shadow-lg shadow-indigo-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
-                                        <BookOpen className="size-5 text-white" />
+                    <Link href="/admin/modules" className="h-full">
+                        <Card className="group cursor-pointer border-indigo-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-400/40 h-full">
+                            <CardHeader>
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-lg bg-gradient-to-br from-indigo-500 to-blue-400 p-3 shadow-lg shadow-indigo-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                                            <BookOpen className="size-5 text-white" />
+                                        </div>
+                                        <CardTitle className="text-lg">
+                                            Modules
+                                        </CardTitle>
                                     </div>
-                                    <CardTitle className="text-lg">
-                                        Modules
-                                    </CardTitle>
                                 </div>
-                            </div>
-                            <CardDescription className="mt-2">
-                                Create, toggle availability and manage module
-                                capacity.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-3">
-                                <Badge className="animate-pulse bg-indigo-500 text-white shadow-lg hover:bg-indigo-500/90">
-                                    {modules.length} Active
-                                </Badge>
-                                <Link href="/admin/modules">
+                                <CardDescription className="mt-2">
+                                    Create, toggle availability and manage module
+                                    capacity.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-3">
+                                    <Badge className="animate-pulse bg-indigo-500 text-white shadow-lg hover:bg-indigo-500/90">
+                                        {modules.length} Active
+                                    </Badge>
                                     <Button
                                         size="sm"
                                         className="transition-all hover:scale-105"
                                     >
                                         Open
                                     </Button>
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="group cursor-pointer border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-400/40">
-                        <CardHeader>
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 p-3 shadow-lg shadow-emerald-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
-                                    <UserPlus className="size-5 text-white" />
                                 </div>
-                                <CardTitle className="text-lg">
-                                    Teachers
-                                </CardTitle>
-                            </div>
-                            <CardDescription className="mt-2">
-                                Create or remove teacher accounts, attach
-                                teachers to modules.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-3">
-                                <Badge
-                                    variant="secondary"
-                                    className="bg-emerald-500 text-white shadow-md hover:bg-emerald-500/90"
-                                >
-                                    Staff
-                                </Badge>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="transition-all hover:scale-105"
-                                >
-                                    Manage
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </Link>
 
-                    <Card className="group cursor-pointer border-amber-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-400/40">
-                        <CardHeader>
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gradient-to-br from-amber-400 to-orange-400 p-3 shadow-lg shadow-amber-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
-                                    <Users className="size-5 text-white" />
+                    <Link href="/admin/teachers" className="h-full">
+                        <Card className="group cursor-pointer border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-400/40 h-full">
+                            <CardHeader>
+                                <div className="flex items-center gap-3">
+                                    <div className="rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 p-3 shadow-lg shadow-emerald-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                                        <UserPlus className="size-5 text-white" />
+                                    </div>
+                                    <CardTitle className="text-lg">
+                                        Teachers
+                                    </CardTitle>
                                 </div>
-                                <CardTitle className="text-lg">
-                                    Students
-                                </CardTitle>
-                            </div>
-                            <CardDescription className="mt-2">
-                                Change user roles and remove students from
-                                modules.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-3">
-                                <Badge
-                                    variant="secondary"
-                                    className="bg-amber-400 text-black shadow-md hover:bg-amber-400/90"
-                                >
-                                    Cohorts
-                                </Badge>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="transition-all hover:scale-105"
-                                >
-                                    Manage
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <CardDescription className="mt-2">
+                                    Create or remove teacher accounts, attach
+                                    teachers to modules.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-3">
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-emerald-500 text-white shadow-md hover:bg-emerald-500/90"
+                                    >
+                                        Staff
+                                    </Badge>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="transition-all hover:scale-105"
+                                    >
+                                        Manage
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    <Link href="/admin/students" className="h-full">
+                        <Card className="group cursor-pointer border-amber-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-400/40 h-full">
+                            <CardHeader>
+                                <div className="flex items-center gap-3">
+                                    <div className="rounded-lg bg-gradient-to-br from-amber-400 to-orange-400 p-3 shadow-lg shadow-amber-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                                        <Users className="size-5 text-white" />
+                                    </div>
+                                    <CardTitle className="text-lg">
+                                        Students
+                                    </CardTitle>
+                                </div>
+                                <CardDescription className="mt-2">
+                                    Change user roles and remove students from
+                                    modules.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-3">
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-amber-400 text-black shadow-md hover:bg-amber-400/90"
+                                    >
+                                        Cohorts
+                                    </Badge>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="transition-all hover:scale-105"
+                                    >
+                                        Manage
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
                 </div>
 
                 {/* Modules Section */}

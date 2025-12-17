@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -48,5 +49,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    // Relationships
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_teacher', 'teacher_id', 'module_id');
+    }
+
+    public function enrolledModules()
+    {
+        return $this->belongsToMany(Module::class, 'module_student', 'student_id', 'module_id');
     }
 }
