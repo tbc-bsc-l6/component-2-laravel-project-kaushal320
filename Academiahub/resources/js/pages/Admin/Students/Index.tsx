@@ -1,12 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -19,13 +13,13 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
-    Users,
-    Trash2,
+    AlertCircle,
     BookOpen,
+    CheckCircle2,
     Mail,
     Shield,
-    AlertCircle,
-    CheckCircle2,
+    Trash2,
+    Users,
 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -81,7 +75,9 @@ export default function StudentsIndex({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Students Management</h1>
+                        <h1 className="text-3xl font-bold">
+                            Students Management
+                        </h1>
                         <p className="mt-1 text-muted-foreground">
                             Manage students, their enrollments, and roles
                         </p>
@@ -114,15 +110,15 @@ export default function StudentsIndex({
                     {students.length === 0 ? (
                         <Card className="border-dashed border-blue-400/30 bg-blue-500/5">
                             <CardContent className="flex min-h-[300px] items-center justify-center">
-                                <div className="text-center space-y-4">
-                                    <div className="rounded-full bg-blue-500/20 p-4 inline-block">
+                                <div className="space-y-4 text-center">
+                                    <div className="inline-block rounded-full bg-blue-500/20 p-4">
                                         <Users className="size-8 text-blue-400" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-lg">
+                                        <h3 className="text-lg font-semibold">
                                             No students yet
                                         </h3>
-                                        <p className="text-muted-foreground mt-1">
+                                        <p className="mt-1 text-muted-foreground">
                                             Students will appear here once they
                                             register
                                         </p>
@@ -135,12 +131,12 @@ export default function StudentsIndex({
                             {students.map((student) => (
                                 <Card
                                     key={student.id}
-                                    className="group border-blue-400/30 transition-all duration-300 hover:border-blue-400/70 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                                    className="group border-blue-400/30 transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-400/70 hover:shadow-lg hover:shadow-blue-500/30"
                                 >
                                     <CardContent className="p-6">
                                         <div className="flex items-start justify-between gap-4">
-                                            <div className="flex gap-4 flex-1">
-                                                <div className="rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-3 shadow-md transition-all group-hover:from-blue-500/30 group-hover:to-cyan-500/30 group-hover:shadow-lg group-hover:shadow-blue-500/50 h-fit">
+                                            <div className="flex flex-1 gap-4">
+                                                <div className="h-fit rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-3 shadow-md transition-all group-hover:from-blue-500/30 group-hover:to-cyan-500/30 group-hover:shadow-lg group-hover:shadow-blue-500/50">
                                                     <Users className="size-6 text-blue-400 transition-transform group-hover:scale-110 group-hover:rotate-6" />
                                                 </div>
 
@@ -148,7 +144,7 @@ export default function StudentsIndex({
                                                     <h3 className="text-lg font-semibold transition-colors group-hover:text-blue-400">
                                                         {student.name}
                                                     </h3>
-                                                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                                                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                                                         <Mail className="size-3" />
                                                         {student.email}
                                                     </p>
@@ -156,7 +152,9 @@ export default function StudentsIndex({
                                                     {/* Role */}
                                                     <div className="mt-2">
                                                         <Dialog>
-                                                            <DialogTrigger asChild>
+                                                            <DialogTrigger
+                                                                asChild
+                                                            >
                                                                 <Badge
                                                                     className={`cursor-pointer transition-all hover:scale-105 ${
                                                                         student.role ===
@@ -169,21 +167,29 @@ export default function StudentsIndex({
                                                                     }`}
                                                                 >
                                                                     <Shield className="mr-1 size-3" />
-                                                                    {student.role.charAt(0).toUpperCase() +
+                                                                    {student.role
+                                                                        .charAt(
+                                                                            0,
+                                                                        )
+                                                                        .toUpperCase() +
                                                                         student.role.slice(
-                                                                            1
+                                                                            1,
                                                                         )}
                                                                 </Badge>
                                                             </DialogTrigger>
                                                             <DialogContent>
                                                                 <DialogHeader>
                                                                     <DialogTitle>
-                                                                        Change Role
+                                                                        Change
+                                                                        Role
                                                                     </DialogTitle>
                                                                     <DialogDescription>
-                                                                        Select a new
-                                                                        role for{' '}
-                                                                        {student.name}
+                                                                        Select a
+                                                                        new role
+                                                                        for{' '}
+                                                                        {
+                                                                            student.name
+                                                                        }
                                                                     </DialogDescription>
                                                                 </DialogHeader>
                                                                 <div className="space-y-2">
@@ -191,7 +197,9 @@ export default function StudentsIndex({
                                                                         'student',
                                                                         'teacher',
                                                                     ].map(
-                                                                        (role) => (
+                                                                        (
+                                                                            role,
+                                                                        ) => (
                                                                             <Button
                                                                                 key={
                                                                                     role
@@ -217,18 +225,20 @@ export default function StudentsIndex({
                                                                             >
                                                                                 <Shield className="mr-2 size-4" />
                                                                                 Make{' '}
-                                                                                {role.charAt(
-                                                                                    0
-                                                                                ).toUpperCase() +
-                                                                                        role.slice(
-                                                                                            1
-                                                                                        )}
-                                                                                    {student.role ===
-                                                                                        role && (
-                                                                                        <CheckCircle2 className="ml-auto size-4" />
+                                                                                {role
+                                                                                    .charAt(
+                                                                                        0,
+                                                                                    )
+                                                                                    .toUpperCase() +
+                                                                                    role.slice(
+                                                                                        1,
                                                                                     )}
-                                                                                </Button>
-                                                                        )
+                                                                                {student.role ===
+                                                                                    role && (
+                                                                                    <CheckCircle2 className="ml-auto size-4" />
+                                                                                )}
+                                                                            </Button>
+                                                                        ),
                                                                     )}
                                                                 </div>
                                                             </DialogContent>
@@ -236,8 +246,8 @@ export default function StudentsIndex({
                                                     </div>
 
                                                     {/* Enrolled Modules */}
-                                                    {student.enrolledModules.length >
-                                                        0 && (
+                                                    {student.enrolledModules
+                                                        .length > 0 && (
                                                         <div className="mt-3 flex flex-wrap gap-2">
                                                             {student.enrolledModules.map(
                                                                 (module) => (
@@ -252,7 +262,7 @@ export default function StudentsIndex({
                                                                             module.code
                                                                         }
                                                                     </Badge>
-                                                                )
+                                                                ),
                                                             )}
                                                         </div>
                                                     )}
@@ -268,18 +278,20 @@ export default function StudentsIndex({
                                                             size="sm"
                                                             className="text-amber-400 hover:text-amber-300"
                                                         >
-                                                            <BookOpen className="size-4 mr-1" />
+                                                            <BookOpen className="mr-1 size-4" />
                                                             Remove
                                                         </Button>
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogHeader>
                                                             <DialogTitle>
-                                                                Remove from Module
+                                                                Remove from
+                                                                Module
                                                             </DialogTitle>
                                                             <DialogDescription>
-                                                                Select a module to
-                                                                remove {student.name}{' '}
+                                                                Select a module
+                                                                to remove{' '}
+                                                                {student.name}{' '}
                                                                 from
                                                             </DialogDescription>
                                                         </DialogHeader>
@@ -293,7 +305,9 @@ export default function StudentsIndex({
                                                         ) : (
                                                             <div className="space-y-2">
                                                                 {student.enrolledModules.map(
-                                                                    (module) => (
+                                                                    (
+                                                                        module,
+                                                                    ) => (
                                                                         <div
                                                                             key={
                                                                                 module.id
@@ -315,7 +329,7 @@ export default function StudentsIndex({
                                                                                 }
                                                                             </Button>
                                                                         </div>
-                                                                    )
+                                                                    ),
                                                                 )}
                                                             </div>
                                                         )}

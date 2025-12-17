@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return Inertia::render('Admin/Dashboard', [
-            'modules' => Module::all(),
+            'modules' => Module::with('teachers')->get(),
         ]);
     })->name('dashboard');
 

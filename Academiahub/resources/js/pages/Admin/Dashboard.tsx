@@ -46,6 +46,11 @@ interface Module {
     code: string;
     capacity: number;
     available: boolean;
+    teachers?: Array<{
+        id: number;
+        name: string;
+        email: string;
+    }>;
 }
 
 export default function AdminDashboard({
@@ -140,7 +145,7 @@ export default function AdminDashboard({
 
                 <div className="grid gap-4 md:grid-cols-3">
                     <Link href="/admin/modules" className="h-full">
-                        <Card className="group cursor-pointer border-indigo-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-400/40 h-full">
+                        <Card className="group h-full cursor-pointer border-indigo-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-400/40">
                             <CardHeader>
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
@@ -153,8 +158,8 @@ export default function AdminDashboard({
                                     </div>
                                 </div>
                                 <CardDescription className="mt-2">
-                                    Create, toggle availability and manage module
-                                    capacity.
+                                    Create, toggle availability and manage
+                                    module capacity.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -174,7 +179,7 @@ export default function AdminDashboard({
                     </Link>
 
                     <Link href="/admin/teachers" className="h-full">
-                        <Card className="group cursor-pointer border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-400/40 h-full">
+                        <Card className="group h-full cursor-pointer border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-400/40">
                             <CardHeader>
                                 <div className="flex items-center gap-3">
                                     <div className="rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 p-3 shadow-lg shadow-emerald-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
@@ -210,7 +215,7 @@ export default function AdminDashboard({
                     </Link>
 
                     <Link href="/admin/students" className="h-full">
-                        <Card className="group cursor-pointer border-amber-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-400/40 h-full">
+                        <Card className="group h-full cursor-pointer border-amber-400/50 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-400/40">
                             <CardHeader>
                                 <div className="flex items-center gap-3">
                                     <div className="rounded-lg bg-gradient-to-br from-amber-400 to-orange-400 p-3 shadow-lg shadow-amber-500/50 transition-transform group-hover:scale-110 group-hover:rotate-3">
@@ -424,6 +429,39 @@ export default function AdminDashboard({
                                                         <Badge variant="outline">
                                                             #{module.id}
                                                         </Badge>
+                                                    </div>
+                                                    <div className="space-y-2 border-t border-purple-500/20 pt-3">
+                                                        <span className="flex items-center gap-2 text-sm font-medium">
+                                                            <Users className="size-4 text-purple-400" />
+                                                            Teachers Assigned
+                                                        </span>
+                                                        {module.teachers &&
+                                                        module.teachers.length >
+                                                            0 ? (
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {module.teachers.map(
+                                                                    (
+                                                                        teacher,
+                                                                    ) => (
+                                                                        <Badge
+                                                                            key={
+                                                                                teacher.id
+                                                                            }
+                                                                            className="bg-emerald-500 text-white shadow-md"
+                                                                        >
+                                                                            {
+                                                                                teacher.name
+                                                                            }
+                                                                        </Badge>
+                                                                    ),
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-xs text-muted-foreground italic">
+                                                                No teachers
+                                                                assigned yet
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 pt-2">
