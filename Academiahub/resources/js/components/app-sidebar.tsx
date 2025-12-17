@@ -27,7 +27,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        href: 'https://github.com/tbc-bsc-l6/component-2-laravel-project-kaushal320',
         icon: Folder,
     },
     {

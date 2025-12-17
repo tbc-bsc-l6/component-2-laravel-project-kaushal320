@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Module extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'code',
+        'capacity',
+        'available',
+        'teacher_id',
+    ];
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+}
