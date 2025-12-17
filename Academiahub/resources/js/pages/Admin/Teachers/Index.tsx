@@ -7,7 +7,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
     Dialog,
     DialogContent,
@@ -16,19 +15,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import {
-    Users,
-    Plus,
-    Trash2,
-    BookOpen,
-    X,
-    Mail,
-    Lock,
-    AlertCircle,
-} from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { BookOpen, Mail, Plus, Trash2, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -57,8 +48,11 @@ export default function TeachersIndex({
     modules: Module[];
 }) {
     const [expandedForm, setExpandedForm] = useState(false);
-    const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
-    const [selectedModuleForAttach, setSelectedModuleForAttach] = useState<Module | null>(null);
+    const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(
+        null,
+    );
+    const [selectedModuleForAttach, setSelectedModuleForAttach] =
+        useState<Module | null>(null);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         name: '',
@@ -68,13 +62,13 @@ export default function TeachersIndex({
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        
+
         // Validate form data
         if (!data.name || !data.email || !data.password) {
             alert('Please fill in all fields');
             return;
         }
-        
+
         post('/admin/teachers', {
             onSuccess: () => {
                 reset();
@@ -87,20 +81,29 @@ export default function TeachersIndex({
     }
 
     function attachTeacherToModule(teacher: Teacher, moduleId: number) {
-        const { post: postAttach } = useForm({ module_id: moduleId });
-        postAttach(`/admin/teachers/${teacher.id}/attach-module`, {
-            onSuccess: () => {
-                setSelectedTeacher(null);
+        console.log('Attaching module', moduleId, 'to teacher', teacher.id);
+        console.log('Available modules:', modules);
+
+        router.post(
+            `/admin/teachers/${teacher.id}/attach-module`,
+            { module_id: moduleId },
+            {
+                onSuccess: () => {
+                    console.log('Successfully attached module');
+                    setSelectedTeacher(null);
+                },
+                onError: (error) => {
+                    console.error('Attach error - module_id sent:', moduleId);
+                    console.error('Full error:', error);
+                    alert('Failed to attach module: ' + JSON.stringify(error));
+                },
             },
-        });
+        );
     }
 
     function deleteTeacher(teacherId: number) {
-        const { delete: deleteTeacher } = useForm({});
-        if (
-            confirm('Are you sure you want to remove this teacher?')
-        ) {
-            deleteTeacher(`/admin/teachers/${teacherId}`);
+        if (confirm('Are you sure you want to remove this teacher?')) {
+            router.delete(`/admin/teachers/${teacherId}`);
         }
     }
 
@@ -112,7 +115,9 @@ export default function TeachersIndex({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Teachers Management</h1>
+                        <h1 className="text-3xl font-bold">
+                            Teachers Management
+                        </h1>
                         <p className="mt-1 text-muted-foreground">
                             Create, manage, and attach teachers to modules
                         </p>
@@ -133,7 +138,7 @@ export default function TeachersIndex({
                 {/* Create Teacher Form */}
                 <Card className="border-emerald-400/50 shadow-lg shadow-emerald-500/20">
                     <CardHeader
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        className="cursor-pointer transition-colors hover:bg-muted/50"
                         onClick={() => setExpandedForm(!expandedForm)}
                     >
                         <div className="flex items-center justify-between">
@@ -179,15 +184,20 @@ export default function TeachersIndex({
                                 {Object.keys(errors).length > 0 && (
                                     <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-3">
                                         <ul className="space-y-1 text-sm text-red-400">
-                                            {Object.entries(errors).map(([field, message]) => (
-                                                <li key={field}>
-                                                    <strong>{field}:</strong> {String(message)}
-                                                </li>
-                                            ))}
+                                            {Object.entries(errors).map(
+                                                ([field, message]) => (
+                                                    <li key={field}>
+                                                        <strong>
+                                                            {field}:
+                                                        </strong>{' '}
+                                                        {String(message)}
+                                                    </li>
+                                                ),
+                                            )}
                                         </ul>
                                     </div>
                                 )}
-                                
+
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">
@@ -264,10 +274,12 @@ export default function TeachersIndex({
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/50 flex-1"
+                                        className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/50 hover:from-emerald-600 hover:to-teal-600"
                                     >
                                         <Plus className="mr-2 size-4" />
-                                        {processing ? 'Creating...' : 'Create Teacher'}
+                                        {processing
+                                            ? 'Creating...'
+                                            : 'Create Teacher'}
                                     </Button>
                                     <Button
                                         type="button"
@@ -300,21 +312,22 @@ export default function TeachersIndex({
                     {teachers.length === 0 ? (
                         <Card className="border-dashed border-emerald-400/30 bg-emerald-500/5">
                             <CardContent className="flex min-h-[300px] items-center justify-center">
-                                <div className="text-center space-y-4">
-                                    <div className="rounded-full bg-emerald-500/20 p-4 inline-block">
+                                <div className="space-y-4 text-center">
+                                    <div className="inline-block rounded-full bg-emerald-500/20 p-4">
                                         <Users className="size-8 text-emerald-400" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-lg">
+                                        <h3 className="text-lg font-semibold">
                                             No teachers yet
                                         </h3>
-                                        <p className="text-muted-foreground mt-1">
-                                            Create your first teacher to get started
+                                        <p className="mt-1 text-muted-foreground">
+                                            Create your first teacher to get
+                                            started
                                         </p>
                                     </div>
                                     <Button
                                         onClick={() => setExpandedForm(true)}
-                                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 mt-4"
+                                        className="mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
                                     >
                                         <Plus className="mr-2 size-4" />
                                         Create First Teacher
@@ -327,12 +340,12 @@ export default function TeachersIndex({
                             {teachers.map((teacher) => (
                                 <Card
                                     key={teacher.id}
-                                    className="group border-emerald-400/30 transition-all duration-300 hover:border-emerald-400/70 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                                    className="group border-emerald-400/30 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/70 hover:shadow-lg hover:shadow-emerald-500/30"
                                 >
                                     <CardContent className="p-6">
                                         <div className="flex items-start justify-between gap-4">
-                                            <div className="flex gap-4 flex-1">
-                                                <div className="rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-3 shadow-md transition-all group-hover:from-emerald-500/30 group-hover:to-teal-500/30 group-hover:shadow-lg group-hover:shadow-emerald-500/50 h-fit">
+                                            <div className="flex flex-1 gap-4">
+                                                <div className="h-fit rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-3 shadow-md transition-all group-hover:from-emerald-500/30 group-hover:to-teal-500/30 group-hover:shadow-lg group-hover:shadow-emerald-500/50">
                                                     <Users className="size-6 text-emerald-400 transition-transform group-hover:scale-110 group-hover:rotate-6" />
                                                 </div>
 
@@ -340,12 +353,13 @@ export default function TeachersIndex({
                                                     <h3 className="text-lg font-semibold transition-colors group-hover:text-emerald-400">
                                                         {teacher.name}
                                                     </h3>
-                                                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                                                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                                                         <Mail className="size-3" />
                                                         {teacher.email}
                                                     </p>
 
-                                                    {teacher.modules.length > 0 && (
+                                                    {teacher.modules.length >
+                                                        0 && (
                                                         <div className="mt-3 flex flex-wrap gap-2">
                                                             {teacher.modules.map(
                                                                 (module) => (
@@ -360,7 +374,7 @@ export default function TeachersIndex({
                                                                             module.code
                                                                         }
                                                                     </Badge>
-                                                                )
+                                                                ),
                                                             )}
                                                         </div>
                                                     )}
@@ -376,7 +390,7 @@ export default function TeachersIndex({
                                                             size="sm"
                                                             className="text-emerald-400 hover:text-emerald-300"
                                                         >
-                                                            <BookOpen className="size-4 mr-1" />
+                                                            <BookOpen className="mr-1 size-4" />
                                                             Attach
                                                         </Button>
                                                     </DialogTrigger>
@@ -387,9 +401,9 @@ export default function TeachersIndex({
                                                                 {teacher.name}
                                                             </DialogTitle>
                                                             <DialogDescription>
-                                                                Select a module to
-                                                                attach to this
-                                                                teacher
+                                                                Select a module
+                                                                to attach to
+                                                                this teacher
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="space-y-3">
@@ -408,9 +422,11 @@ export default function TeachersIndex({
                                                                         variant="outline"
                                                                         className="w-full justify-start border-emerald-500/50 hover:border-emerald-400 hover:text-emerald-400"
                                                                         disabled={teacher.modules.some(
-                                                                            (m) =>
+                                                                            (
+                                                                                m,
+                                                                            ) =>
                                                                                 m.id ===
-                                                                                module.id
+                                                                                module.id,
                                                                         )}
                                                                     >
                                                                         <BookOpen className="mr-2 size-4" />
@@ -418,16 +434,18 @@ export default function TeachersIndex({
                                                                             module.title
                                                                         }
                                                                         {teacher.modules.some(
-                                                                            (m) =>
+                                                                            (
+                                                                                m,
+                                                                            ) =>
                                                                                 m.id ===
-                                                                                module.id
+                                                                                module.id,
                                                                         ) && (
                                                                             <Badge className="ml-auto bg-emerald-600">
                                                                                 Attached
                                                                             </Badge>
                                                                         )}
                                                                     </Button>
-                                                                )
+                                                                ),
                                                             )}
                                                         </div>
                                                     </DialogContent>
