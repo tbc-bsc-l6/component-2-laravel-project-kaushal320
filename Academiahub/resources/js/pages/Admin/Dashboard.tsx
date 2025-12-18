@@ -23,6 +23,8 @@ import {
     Activity,
     BookOpen,
     Calendar,
+    ChevronLeft,
+    ChevronRight,
     Eye,
     Palette,
     ShieldCheck,
@@ -59,6 +61,16 @@ export default function AdminDashboard({
     modules?: Module[];
 }) {
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+    const [modulePage, setModulePage] = useState(1);
+
+    const modulesPerPage = 4;
+    const totalModulePages = Math.max(
+        1,
+        Math.ceil(modules.length / modulesPerPage),
+    );
+    const moduleStart = (modulePage - 1) * modulesPerPage;
+    const moduleEnd = moduleStart + modulesPerPage;
+    const paginatedModules = modules.slice(moduleStart, moduleEnd);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -300,7 +312,7 @@ export default function AdminDashboard({
                             </div>
                         ) : (
                             <div className="grid gap-3">
-                                {modules.map((module) => (
+                                {paginatedModules.map((module) => (
                                     <Dialog key={module.id}>
                                         <DialogTrigger asChild>
                                             <div className="group flex cursor-pointer items-center justify-between rounded-lg border border-purple-500/20 bg-gradient-to-r from-card to-purple-500/5 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-purple-400/70 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-fuchsia-500/10 hover:shadow-lg hover:shadow-purple-400/40">
@@ -483,6 +495,74 @@ export default function AdminDashboard({
                         )}
                     </CardContent>
                 </Card>
+
+                {modules.length > modulesPerPage && (
+                    <div className="flex items-center justify-between rounded-lg border border-purple-500/30 bg-purple-500/5 p-4">
+                        <div className="text-sm text-muted-foreground">
+                            Page{' '}
+                            <span className="font-semibold text-purple-500">
+                                {modulePage}
+                            </span>{' '}
+                            of{' '}
+                            <span className="font-semibold text-purple-500">
+                                {totalModulePages}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    setModulePage(Math.max(1, modulePage - 1))
+                                }
+                                disabled={modulePage === 1}
+                                className="border-purple-400/50 hover:border-purple-400 hover:text-purple-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <ChevronLeft className="mr-1 size-4" /> Prev
+                            </Button>
+                            <div className="flex items-center gap-1">
+                                {Array.from(
+                                    { length: totalModulePages },
+                                    (_, i) => i + 1,
+                                ).map((page) => (
+                                    <Button
+                                        key={page}
+                                        variant={
+                                            modulePage === page
+                                                ? 'default'
+                                                : 'outline'
+                                        }
+                                        size="sm"
+                                        onClick={() => setModulePage(page)}
+                                        className={`h-9 w-9 p-0 transition-all ${
+                                            modulePage === page
+                                                ? 'border-purple-500 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/50 hover:from-purple-600 hover:to-fuchsia-600'
+                                                : 'border-purple-400/50 hover:border-purple-400 hover:text-purple-400'
+                                        }`}
+                                    >
+                                        {page}
+                                    </Button>
+                                ))}
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    setModulePage(
+                                        Math.min(
+                                            totalModulePages,
+                                            modulePage + 1,
+                                        ),
+                                    )
+                                }
+                                disabled={modulePage === totalModulePages}
+                                className="border-purple-400/50 hover:border-purple-400 hover:text-purple-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next <ChevronRight className="ml-1 size-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <Card className="mt-2 border-slate-400/30 shadow-lg shadow-slate-500/20">
                     <CardHeader>

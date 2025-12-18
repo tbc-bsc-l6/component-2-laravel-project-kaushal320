@@ -358,24 +358,50 @@ export default function TeachersIndex({
                                                         {teacher.email}
                                                     </p>
 
+                                                    {/* Module Count Badge */}
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <Badge className="border border-emerald-500/50 bg-emerald-500/30 text-emerald-400">
+                                                            <BookOpen className="mr-1 size-3" />
+                                                            {
+                                                                teacher.modules
+                                                                    .length
+                                                            }{' '}
+                                                            Module
+                                                            {teacher.modules
+                                                                .length !== 1
+                                                                ? 's'
+                                                                : ''}
+                                                        </Badge>
+                                                    </div>
+
+                                                    {/* Assigned Modules */}
                                                     {teacher.modules.length >
                                                         0 && (
-                                                        <div className="mt-3 flex flex-wrap gap-2">
-                                                            {teacher.modules.map(
-                                                                (module) => (
-                                                                    <Badge
-                                                                        key={
-                                                                            module.id
-                                                                        }
-                                                                        variant="outline"
-                                                                        className="border-emerald-500/50 text-emerald-400"
-                                                                    >
-                                                                        {
-                                                                            module.code
-                                                                        }
-                                                                    </Badge>
-                                                                ),
-                                                            )}
+                                                        <div className="mt-3 space-y-2">
+                                                            <p className="text-xs font-medium text-muted-foreground">
+                                                                📚 Teaching
+                                                                (Modules
+                                                                assigned):
+                                                            </p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {teacher.modules.map(
+                                                                    (
+                                                                        module,
+                                                                    ) => (
+                                                                        <Badge
+                                                                            key={
+                                                                                module.id
+                                                                            }
+                                                                            variant="outline"
+                                                                            className="border-emerald-500/50 text-emerald-400"
+                                                                        >
+                                                                            {
+                                                                                module.title
+                                                                            }
+                                                                        </Badge>
+                                                                    ),
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
