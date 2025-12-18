@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Teacher\ModuleController as TeacherModuleController;
 use App\Models\Module;
 
 Route::get('/', function () {
@@ -23,6 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return Inertia::render('Admin/Dashboard', [
                 'modules' => Module::all(),
             ]);
+        }
+
+        if ($user && isset($user->role) && $user->role === 'teacher') {
+            return redirect()->route('teacher.modules.index');
         }
 
         return Inertia::render('dashboard');
@@ -60,3 +65,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 require __DIR__ . '/settings.php';
+
+// Teacher routes
+Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/', [TeacherModuleController::class, 'index'])->name('modules.index');
+    Route::patch('modules/{module}/students/{student}/status', [TeacherModuleController::class, 'updateStudentStatus'])->name('modules.students.status');
+});
