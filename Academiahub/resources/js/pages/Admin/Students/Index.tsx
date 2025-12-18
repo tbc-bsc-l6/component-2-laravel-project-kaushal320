@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     AlertCircle,
     BookOpen,
@@ -21,6 +21,7 @@ import {
     Trash2,
     Users,
 } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: '/admin' },
@@ -32,7 +33,7 @@ interface Student {
     name: string;
     email: string;
     role: string;
-    enrolledModules: Module[];
+    enrolledModules?: Module[];
 }
 
 interface Module {
@@ -48,22 +49,23 @@ export default function StudentsIndex({
     students: Student[];
     modules: Module[];
 }) {
+    const [selectedStudent, setSelectedStudent] = useState<Student | null>(
+        null,
+    );
+
     function changeStudentRole(studentId: number, role: string) {
-        const { patch } = useForm({ role });
-        patch(`/admin/users/${studentId}/role`);
+        router.patch(`/admin/users/${studentId}/role`, { role });
     }
 
     function removeStudentFromModule(studentId: number, moduleId: number) {
         if (confirm('Remove this student from the module?')) {
-            const { delete: deleteRecord } = useForm({});
-            deleteRecord(`/admin/students/${studentId}/modules/${moduleId}`);
+            router.delete(`/admin/students/${studentId}/modules/${moduleId}`);
         }
     }
 
     function deleteStudent(studentId: number) {
         if (confirm('Are you sure you want to delete this student?')) {
-            const { delete: deleteRecord } = useForm({});
-            deleteRecord(`/admin/students/${studentId}`);
+            router.delete(`/admin/students/${studentId}`);
         }
     }
 
@@ -246,26 +248,39 @@ export default function StudentsIndex({
                                                     </div>
 
                                                     {/* Enrolled Modules */}
-                                                    {student.enrolledModules
-                                                        .length > 0 && (
-                                                        <div className="mt-3 flex flex-wrap gap-2">
-                                                            {student.enrolledModules.map(
-                                                                (module) => (
-                                                                    <Badge
-                                                                        key={
-                                                                            module.id
-                                                                        }
-                                                                        variant="outline"
-                                                                        className="border-blue-500/50 text-blue-400"
-                                                                    >
-                                                                        {
-                                                                            module.code
-                                                                        }
-                                                                    </Badge>
-                                                                ),
-                                                            )}
-                                                        </div>
-                                                    )}
+                                                    {student.enrolledModules &&
+                                                        student.enrolledModules
+                                                            .length > 0 && (
+                                                            <div className="mt-3 space-y-2">
+                                                                <p className="text-xs font-medium text-muted-foreground">
+                                                                    🎓 Enrolled
+                                                                    Modules
+                                                                    (courses):
+                                                                </p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {(
+                                                                        student.enrolledModules ??
+                                                                        []
+                                                                    ).map(
+                                                                        (
+                                                                            module,
+                                                                        ) => (
+                                                                            <Badge
+                                                                                key={
+                                                                                    module.id
+                                                                                }
+                                                                                variant="outline"
+                                                                                className="border-blue-500/50 text-blue-400"
+                                                                            >
+                                                                                {
+                                                                                    module.title
+                                                                                }
+                                                                            </Badge>
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                 </div>
                                             </div>
 
@@ -295,7 +310,8 @@ export default function StudentsIndex({
                                                                 from
                                                             </DialogDescription>
                                                         </DialogHeader>
-                                                        {student.enrolledModules
+                                                        {!student.enrolledModules ||
+                                                        student.enrolledModules
                                                             .length === 0 ? (
                                                             <p className="text-muted-foreground">
                                                                 Student is not
@@ -304,7 +320,10 @@ export default function StudentsIndex({
                                                             </p>
                                                         ) : (
                                                             <div className="space-y-2">
-                                                                {student.enrolledModules.map(
+                                                                {(
+                                                                    student.enrolledModules ??
+                                                                    []
+                                                                ).map(
                                                                     (
                                                                         module,
                                                                     ) => (
@@ -351,12 +370,140 @@ export default function StudentsIndex({
                                                 </Button>
                                             </div>
                                         </div>
+                                        {/* Click to open details dialog */}
+                                        <div
+                                            className="mt-3 cursor-pointer text-xs text-muted-foreground"
+                                            onClick={() =>
+                                                setSelectedStudent(student)
+                                            }
+                                        >
+                                            Click to view details and actions
+                                        </div>
                                     </CardContent>
                                 </Card>
                             ))}
                         </div>
                     )}
                 </div>
+                {/* Selected Student Details Dialog */}
+                {selectedStudent && (
+                    <Dialog
+                        open={!!selectedStudent}
+                        onOpenChange={(open) => {
+                            if (!open) setSelectedStudent(null);
+                        }}
+                    >
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    {selectedStudent.name}
+                                </DialogTitle>
+                                <DialogDescription>
+                                    {selectedStudent.email}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                                {/* Role change */}
+                                <div>
+                                    <p className="text-sm font-medium">Role</p>
+                                    <div className="mt-2 space-y-2">
+                                        {['student', 'teacher'].map((role) => (
+                                            <Button
+                                                key={role}
+                                                onClick={() =>
+                                                    changeStudentRole(
+                                                        selectedStudent.id,
+                                                        role,
+                                                    )
+                                                }
+                                                variant={
+                                                    selectedStudent.role ===
+                                                    role
+                                                        ? 'default'
+                                                        : 'outline'
+                                                }
+                                                className={
+                                                    selectedStudent.role ===
+                                                    role
+                                                        ? 'w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500'
+                                                        : 'w-full justify-start'
+                                                }
+                                            >
+                                                <Shield className="mr-2 size-4" />
+                                                Make{' '}
+                                                {role.charAt(0).toUpperCase() +
+                                                    role.slice(1)}
+                                                {selectedStudent.role ===
+                                                    role && (
+                                                    <CheckCircle2 className="ml-auto size-4" />
+                                                )}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Enrolled modules with remove */}
+                                <div>
+                                    <p className="text-sm font-medium">
+                                        Enrolled Modules (courses)
+                                    </p>
+                                    {(selectedStudent.enrolledModules ?? [])
+                                        .length === 0 ? (
+                                        <p className="text-sm text-muted-foreground">
+                                            Not enrolled in any modules
+                                        </p>
+                                    ) : (
+                                        <div className="mt-2 space-y-2">
+                                            {(
+                                                selectedStudent.enrolledModules ??
+                                                []
+                                            ).map((module) => (
+                                                <div
+                                                    key={module.id}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="border-blue-500/50 text-blue-400"
+                                                    >
+                                                        {module.title}
+                                                    </Badge>
+                                                    <Button
+                                                        onClick={() =>
+                                                            removeStudentFromModule(
+                                                                selectedStudent.id,
+                                                                module.id,
+                                                            )
+                                                        }
+                                                        variant="outline"
+                                                        className="border-red-500/50 hover:border-red-400 hover:text-red-400"
+                                                    >
+                                                        <Trash2 className="mr-2 size-4" />
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Danger zone */}
+                                <div>
+                                    <Button
+                                        onClick={() =>
+                                            deleteStudent(selectedStudent.id)
+                                        }
+                                        variant="ghost"
+                                        className="text-red-400 hover:text-red-300"
+                                    >
+                                        <AlertCircle className="mr-2 size-4" />
+                                        Delete Student
+                                    </Button>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
         </AppLayout>
     );
