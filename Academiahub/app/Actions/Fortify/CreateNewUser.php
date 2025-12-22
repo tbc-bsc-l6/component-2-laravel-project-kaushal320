@@ -27,6 +27,8 @@ class CreateNewUser implements CreatesNewUsers
                 'max:255',
                 Rule::unique(User::class),
             ],
+            // Restrict self-registration to students only
+            'role' => ['required', 'string', Rule::in(['student'])],
             'password' => $this->passwordRules(),
         ])->validate();
 
@@ -34,6 +36,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
+            'role' => 'student',
         ]);
     }
 }
