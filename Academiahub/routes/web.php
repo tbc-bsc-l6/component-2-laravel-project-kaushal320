@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Teacher\ModuleController as TeacherModuleController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Models\Module;
 
 Route::get('/', function () {
@@ -28,6 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         if ($user && isset($user->role) && $user->role === 'teacher') {
             return redirect()->route('teacher.modules.index');
+        }
+
+        if ($user && isset($user->role) && $user->role === 'student') {
+            return redirect()->route('student.dashboard');
         }
 
         return Inertia::render('dashboard');
@@ -70,4 +75,10 @@ require __DIR__ . '/settings.php';
 Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/', [TeacherModuleController::class, 'index'])->name('modules.index');
     Route::patch('modules/{module}/students/{student}/status', [TeacherModuleController::class, 'updateStudentStatus'])->name('modules.students.status');
+});
+
+// Student routes
+Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/', [StudentDashboardController::class, 'index'])->name('dashboard');
+    Route::post('enroll/{module}', [StudentDashboardController::class, 'enroll'])->name('enroll');
 });
