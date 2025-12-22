@@ -58,6 +58,8 @@ export default function Register() {
                                 <InputError message={errors.email} />
                             </div>
 
+                            <input type="hidden" name="role" value="student" />
+
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
@@ -106,6 +108,9 @@ export default function Register() {
                             <TextLink href={login()} tabIndex={6}>
                                 Log in
                             </TextLink>
+                            <div className="mt-2 text-xs text-muted-foreground">
+                                Teacher accounts are created by administrators.
+                            </div>
                         </div>
                     </>
                 )}
