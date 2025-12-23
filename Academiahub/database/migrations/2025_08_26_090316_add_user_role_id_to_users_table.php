@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role')) {
-                $table->enum('role', ['admin', 'teacher', 'student'])->default('student')->after('email');
-            }
+            $table->unsignedBigInteger('user_role_id');
+            $table->foreign('user_role_id')->references('id')->on('user_roles')->onDelete('cascade');
         });
     }
 
@@ -24,9 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'role')) {
-                $table->dropColumn('role');
-            }
+            $table->dropForeign(['user_role_id']);
+            $table->dropColumn('user_role_id');
         });
     }
 };
