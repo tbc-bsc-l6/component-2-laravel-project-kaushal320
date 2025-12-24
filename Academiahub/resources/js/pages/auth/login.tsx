@@ -319,7 +319,10 @@ export default function Login({
                                                             selectedRole ===
                                                             'teacher'
                                                                 ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-xl'
-                                                                : 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg hover:from-purple-600 hover:to-purple-700 hover:shadow-xl'
+                                                                : selectedRole ===
+                                                                    'student'
+                                                                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg hover:from-purple-600 hover:to-purple-700 hover:shadow-xl'
+                                                                  : 'bg-gradient-to-r from-amber-500 to-red-600 shadow-lg hover:from-amber-600 hover:to-red-700 hover:shadow-xl'
                                                         }`}
                                                         tabIndex={4}
                                                         disabled={processing}
