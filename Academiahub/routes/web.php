@@ -12,10 +12,32 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Models\Module;
 
 Route::get('/', function () {
-    return Inertia::render('welcome', [
+    return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
+        'modules' => Module::where('available', true)
+            ->with('teachers')
+            ->latest()
+            ->take(6)
+            ->get(),
     ]);
 })->name('home');
+
+// Public informational pages
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about');
+
+Route::get('/features', function () {
+    return Inertia::render('Features');
+})->name('features');
+
+// Module detail page
+Route::get('/modules/{module}', function (Module $module) {
+    return Inertia::render('ModuleDetail', [
+        'module' => $module->load(['teachers']),
+        'enrolledCount' => $module->students()->count(),
+    ]);
+})->name('modules.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function (Request $request) {
