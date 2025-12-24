@@ -38,13 +38,6 @@ interface Module {
 }
 
 export default function Index({ modules }: { modules: Module[] }) {
-    const csrf =
-        (typeof document !== 'undefined'
-            ? document
-                  .querySelector('meta[name="csrf-token"]')
-                  ?.getAttribute('content')
-            : '') || '';
-
     const [expandedForm, setExpandedForm] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -57,8 +50,8 @@ export default function Index({ modules }: { modules: Module[] }) {
     const { data, setData, post, processing, reset } = useForm({
         title: '',
         code: '',
+        description: '',
         capacity: 10,
-        _token: csrf,
     });
 
     function submit(e: React.FormEvent) {
@@ -68,6 +61,14 @@ export default function Index({ modules }: { modules: Module[] }) {
                 reset();
                 setExpandedForm(false);
             },
+        });
+    }
+
+    const toggleForm = useForm({});
+
+    function handleToggle(moduleId: number) {
+        toggleForm.post(`/admin/modules/${moduleId}/toggle`, {
+            preserveScroll: true,
         });
     }
 
@@ -188,6 +189,23 @@ export default function Index({ modules }: { modules: Module[] }) {
                                             )
                                         }
                                         className="border-purple-500/30 transition-colors focus:border-purple-400"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">
+                                        Description
+                                    </label>
+                                    <textarea
+                                        placeholder="Enter module description"
+                                        value={data.description}
+                                        onChange={(e) =>
+                                            setData(
+                                                'description',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="min-h-[100px] w-full rounded-md border border-purple-500/30 bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-purple-400 focus:outline-none"
                                     />
                                 </div>
 
@@ -329,46 +347,42 @@ export default function Index({ modules }: { modules: Module[] }) {
 
                                                 {/* Actions */}
                                                 <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <form
-                                                        method="post"
-                                                        action={`/admin/modules/${module.id}/toggle`}
-                                                        className="inline"
+                                                    <Button
+                                                        onClick={() =>
+                                                            handleToggle(
+                                                                module.id,
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            toggleForm.processing
+                                                        }
+                                                        className={`flex items-center gap-2 rounded-lg px-4 py-2 font-semibold transition-all hover:scale-110 hover:shadow-lg ${
+                                                            module.available
+                                                                ? 'border border-emerald-500/50 bg-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500/30'
+                                                                : 'border border-gray-500/50 bg-gray-500/20 text-gray-400 shadow-lg shadow-gray-500/20 hover:bg-gray-500/30'
+                                                        }`}
+                                                        title={
+                                                            module.available
+                                                                ? 'Disable module'
+                                                                : 'Enable module'
+                                                        }
                                                     >
-                                                        <input
-                                                            type="hidden"
-                                                            name="_token"
-                                                            value={csrf}
-                                                        />
-                                                        <Button
-                                                            type="submit"
-                                                            className={`flex items-center gap-2 rounded-lg px-4 py-2 font-semibold transition-all hover:scale-110 hover:shadow-lg ${
-                                                                module.available
-                                                                    ? 'border border-emerald-500/50 bg-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500/30'
-                                                                    : 'border border-gray-500/50 bg-gray-500/20 text-gray-400 shadow-lg shadow-gray-500/20 hover:bg-gray-500/30'
-                                                            }`}
-                                                            title={
-                                                                module.available
-                                                                    ? 'Disable module'
-                                                                    : 'Enable module'
-                                                            }
-                                                        >
-                                                            {module.available ? (
-                                                                <>
-                                                                    <ToggleRight className="size-6" />
-                                                                    <span>
-                                                                        Disable
-                                                                    </span>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <ToggleLeft className="size-6" />
-                                                                    <span>
-                                                                        Enable
-                                                                    </span>
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                    </form>
+                                                        {module.available ? (
+                                                            <>
+                                                                <ToggleRight className="size-6" />
+                                                                <span>
+                                                                    Disable
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <ToggleLeft className="size-6" />
+                                                                <span>
+                                                                    Enable
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </CardContent>

@@ -10,6 +10,7 @@ class Module extends Model
     use HasFactory;
 
     protected $fillable = [
+        'module',
         'title',
         'code',
         'description',

@@ -27,24 +27,26 @@ export default function Register() {
             borderColor: 'border-purple-300',
             hoverColor: 'hover:shadow-2xl hover:scale-105',
         },
-        {
-            id: 'teacher',
-            label: 'Teacher',
-            description: 'Create and manage courses',
-            icon: Users,
-            color: 'bg-gradient-to-br from-blue-400 to-blue-600',
-            borderColor: 'border-blue-300',
-            hoverColor: 'hover:shadow-2xl hover:scale-105',
-        },
-        {
-            id: 'admin',
-            label: 'Administrator',
-            description: 'Manage the entire platform',
-            icon: ShieldCheck,
-            color: 'bg-gradient-to-br from-amber-500 to-red-600',
-            borderColor: 'border-amber-300',
-            hoverColor: 'hover:shadow-2xl hover:scale-105',
-        },
+        // Teacher registration disabled - teachers are created by admin only
+        // {
+        //     id: 'teacher',
+        //     label: 'Teacher',
+        //     description: 'Create and manage courses',
+        //     icon: Users,
+        //     color: 'bg-gradient-to-br from-blue-400 to-blue-600',
+        //     borderColor: 'border-blue-300',
+        //     hoverColor: 'hover:shadow-2xl hover:scale-105',
+        // },
+        // Admin registration disabled - admins are created by other admins only
+        // {
+        //     id: 'admin',
+        //     label: 'Administrator',
+        //     description: 'Manage the entire platform',
+        //     icon: ShieldCheck,
+        //     color: 'bg-gradient-to-br from-amber-500 to-red-600',
+        //     borderColor: 'border-amber-300',
+        //     hoverColor: 'hover:shadow-2xl hover:scale-105',
+        // },
     ];
 
     return (

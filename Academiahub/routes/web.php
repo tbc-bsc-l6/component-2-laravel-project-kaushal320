@@ -43,17 +43,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function (Request $request) {
         $user = $request->user();
 
-        if ($user && isset($user->role) && $user->role === 'admin') {
+        if ($user && $user->isAdmin()) {
             return Inertia::render('Admin/Dashboard', [
                 'modules' => Module::all(),
             ]);
         }
 
-        if ($user && isset($user->role) && $user->role === 'teacher') {
+        if ($user && $user->userRole && $user->userRole->role === 'teacher') {
             return redirect()->route('teacher.modules.index');
         }
 
-        if ($user && isset($user->role) && $user->role === 'student') {
+        if ($user && $user->userRole && $user->userRole->role === 'student') {
             return redirect()->route('student.dashboard');
         }
 

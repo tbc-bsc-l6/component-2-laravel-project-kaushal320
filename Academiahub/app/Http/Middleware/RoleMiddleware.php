@@ -23,7 +23,12 @@ class RoleMiddleware
             abort(403);
         }
 
-        // Fast path: if the user's role string matches, allow.
+        // Check via userRole relationship
+        if ($user->userRole && $user->userRole->role === $role) {
+            return $next($request);
+        }
+
+        // Fast path: if the user's role string matches (for legacy support), allow.
         if (isset($user->role) && $user->role === $role) {
             return $next($request);
         }
