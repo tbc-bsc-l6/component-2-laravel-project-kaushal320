@@ -32,7 +32,10 @@ interface Student {
     id: number;
     name: string;
     email: string;
-    role: string;
+    userRole?: {
+        id: number;
+        role: string;
+    };
     enrolledModules?: Module[];
 }
 
@@ -159,24 +162,31 @@ export default function StudentsIndex({
                                                             >
                                                                 <Badge
                                                                     className={`cursor-pointer transition-all hover:scale-105 ${
-                                                                        student.role ===
+                                                                        student
+                                                                            .userRole
+                                                                            ?.role ===
                                                                         'student'
                                                                             ? 'bg-blue-600 hover:bg-blue-700'
-                                                                            : student.role ===
+                                                                            : student
+                                                                                    .userRole
+                                                                                    ?.role ===
                                                                                 'teacher'
                                                                               ? 'bg-emerald-600 hover:bg-emerald-700'
                                                                               : 'bg-purple-600 hover:bg-purple-700'
                                                                     }`}
                                                                 >
                                                                     <Shield className="mr-1 size-3" />
-                                                                    {student.role
-                                                                        .charAt(
-                                                                            0,
-                                                                        )
-                                                                        .toUpperCase() +
-                                                                        student.role.slice(
-                                                                            1,
-                                                                        )}
+                                                                    {student
+                                                                        .userRole
+                                                                        ?.role &&
+                                                                        student.userRole.role
+                                                                            .charAt(
+                                                                                0,
+                                                                            )
+                                                                            .toUpperCase() +
+                                                                            student.userRole.role.slice(
+                                                                                1,
+                                                                            )}
                                                                 </Badge>
                                                             </DialogTrigger>
                                                             <DialogContent>
@@ -213,13 +223,17 @@ export default function StudentsIndex({
                                                                                     )
                                                                                 }
                                                                                 variant={
-                                                                                    student.role ===
+                                                                                    student
+                                                                                        .userRole
+                                                                                        ?.role ===
                                                                                     role
                                                                                         ? 'default'
                                                                                         : 'outline'
                                                                                 }
                                                                                 className={`w-full justify-start ${
-                                                                                    student.role ===
+                                                                                    student
+                                                                                        .userRole
+                                                                                        ?.role ===
                                                                                     role
                                                                                         ? 'bg-gradient-to-r from-blue-500 to-cyan-500'
                                                                                         : ''
@@ -235,7 +249,9 @@ export default function StudentsIndex({
                                                                                     role.slice(
                                                                                         1,
                                                                                     )}
-                                                                                {student.role ===
+                                                                                {student
+                                                                                    .userRole
+                                                                                    ?.role ===
                                                                                     role && (
                                                                                     <CheckCircle2 className="ml-auto size-4" />
                                                                                 )}
@@ -417,14 +433,14 @@ export default function StudentsIndex({
                                                     )
                                                 }
                                                 variant={
-                                                    selectedStudent.role ===
-                                                    role
+                                                    selectedStudent.userRole
+                                                        ?.role === role
                                                         ? 'default'
                                                         : 'outline'
                                                 }
                                                 className={
-                                                    selectedStudent.role ===
-                                                    role
+                                                    selectedStudent.userRole
+                                                        ?.role === role
                                                         ? 'w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500'
                                                         : 'w-full justify-start'
                                                 }
@@ -433,8 +449,8 @@ export default function StudentsIndex({
                                                 Make{' '}
                                                 {role.charAt(0).toUpperCase() +
                                                     role.slice(1)}
-                                                {selectedStudent.role ===
-                                                    role && (
+                                                {selectedStudent.userRole
+                                                    ?.role === role && (
                                                     <CheckCircle2 className="ml-auto size-4" />
                                                 )}
                                             </Button>
