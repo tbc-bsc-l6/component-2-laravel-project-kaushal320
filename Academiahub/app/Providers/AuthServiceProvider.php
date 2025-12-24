@@ -22,14 +22,18 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // Gate to check a specific role
-        Gate::define('has-role', fn(User $user, string $role) => $user->role === $role);
+        Gate::define('has-role', function (User $user, string $role) {
+            return $user->userRole && $user->userRole->role === $role;
+        });
 
         // Convenience gate for admin (optional, but handy)
-        Gate::define('access-admin', fn(User $user) => $user->role === 'admin');
+        Gate::define('access-admin', function (User $user) {
+            return $user->userRole && $user->userRole->role === 'admin';
+        });
 
         // Optional: allow a super-admin to bypass checks
         Gate::before(function (User $user, $ability) {
-            return $user->role === 'super-admin' ? true : null;
+            return $user->userRole && $user->userRole->role === 'super-admin' ? true : null;
         });
     }
 }

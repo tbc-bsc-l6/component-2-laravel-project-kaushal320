@@ -33,7 +33,8 @@ class AttemptToAuthenticate
         // Validate the role if provided
         if ($request->has('role')) {
             $selectedRole = $request->input('role');
-            if ($user->role !== $selectedRole) {
+            $userRole = $user->userRole ? $user->userRole->role : null;
+            if ($userRole !== $selectedRole) {
                 throw ValidationException::withMessages([
                     'role' => __('The selected role does not match your account role.'),
                 ]);

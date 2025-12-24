@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'user_role_id',
         'is_old_student',
     ];
 
@@ -53,6 +54,11 @@ class User extends Authenticatable
     }
 
     // Relationships
+    public function userRole()
+    {
+        return $this->belongsTo(UserRole::class, 'user_role_id');
+    }
+
     public function modules()
     {
         return $this->belongsToMany(Module::class, 'module_teacher', 'teacher_id', 'module_id');
@@ -63,5 +69,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Module::class, 'module_student', 'student_id', 'module_id')
             ->withPivot(['status', 'completed_at'])
             ->withTimestamps();
+    }
+
+    // Helper method to check if user is admin
+    public function isAdmin()
+    {
+        return $this->userRole && $this->userRole->role === 'admin';
     }
 }

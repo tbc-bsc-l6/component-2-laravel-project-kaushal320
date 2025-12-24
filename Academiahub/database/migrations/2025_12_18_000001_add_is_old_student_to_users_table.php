@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_old_student')->default(false)->after('role');
+            $table->boolean('is_old_student')->default(false);
         });
     }
 

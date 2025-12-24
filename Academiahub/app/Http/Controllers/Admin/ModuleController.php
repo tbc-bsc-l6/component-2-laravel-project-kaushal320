@@ -27,10 +27,15 @@ class ModuleController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1'],
         ]);
 
-        Module::create($data + ['available' => true]);
+        // Generate module field from title (convert to slug)
+        $data['module'] = \Illuminate\Support\Str::slug($data['title']);
+        $data['available'] = true;
+
+        Module::create($data);
 
         return redirect()->back()->with('success', 'Module created');
     }
@@ -40,8 +45,14 @@ class ModuleController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1'],
         ]);
+
+        // Update module field if title changed
+        if ($data['title'] !== $module->title) {
+            $data['module'] = \Illuminate\Support\Str::slug($data['title']);
+        }
 
         $module->update($data);
 

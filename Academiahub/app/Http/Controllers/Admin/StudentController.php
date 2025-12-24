@@ -17,7 +17,9 @@ class StudentController extends Controller
 
     public function index()
     {
-        $students = User::where('role', 'student')->with('enrolledModules')->get();
+        // Get users with student role
+        $studentRoleId = \Illuminate\Support\Facades\DB::table('user_roles')->where('role', 'student')->value('id');
+        $students = User::where('user_role_id', $studentRoleId)->with('enrolledModules')->get();
         $modules = Module::all();
 
         return Inertia::render('Admin/Students/Index', [
@@ -28,7 +30,7 @@ class StudentController extends Controller
 
     public function destroy(User $student)
     {
-        if ($student->role !== 'student') {
+        if (!$student->userRole || $student->userRole->role !== 'student') {
             return redirect()->back()->with('error', 'Invalid student');
         }
 
@@ -39,7 +41,7 @@ class StudentController extends Controller
 
     public function removeFromModule(User $student, Module $module)
     {
-        if ($student->role !== 'student') {
+        if (!$student->userRole || $student->userRole->role !== 'student') {
             return redirect()->back()->with('error', 'Invalid student');
         }
 
@@ -59,7 +61,17 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'Cannot change your own role');
         }
 
-        $user->update(['role' => $validated['role']]);
+        // Get the role ID from user_roles table
+        $roleId = \Illuminate\Support\Facades\DB::table('user_roles')->where('role', $validated['role'])->value('id');
+        if (!$roleId) {
+            // Create role if it doesn't exist
+            $roleId = \Illuminate\Support\Facades\DB::table('user_roles')->insertGetId([
+                'role' => $validated['role'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        $user->update(['user_role_id' => $roleId]);
 
         return redirect()->back()->with('success', 'User role updated successfully');
     }

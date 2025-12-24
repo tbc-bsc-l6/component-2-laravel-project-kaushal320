@@ -17,7 +17,9 @@ class TeacherController extends Controller
 
     public function index()
     {
-        $teachers = User::where('role', 'teacher')->with('modules')->get();
+        // Get users with teacher role
+        $teacherRoleId = \Illuminate\Support\Facades\DB::table('user_roles')->where('role', 'teacher')->value('id');
+        $teachers = User::where('user_role_id', $teacherRoleId)->with('modules')->get();
         $modules = Module::all();
 
         return Inertia::render('Admin/Teachers/Index', [
@@ -34,11 +36,21 @@ class TeacherController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+        // Get or create teacher role
+        $teacherRoleId = \Illuminate\Support\Facades\DB::table('user_roles')->where('role', 'teacher')->value('id');
+        if (!$teacherRoleId) {
+            $teacherRoleId = \Illuminate\Support\Facades\DB::table('user_roles')->insertGetId([
+                'role' => 'teacher',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
         $teacher = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'role' => 'teacher',
+            'user_role_id' => $teacherRoleId,
         ]);
 
         return redirect()->back()->with('success', 'Teacher created successfully');
@@ -46,7 +58,7 @@ class TeacherController extends Controller
 
     public function destroy(User $teacher)
     {
-        if ($teacher->role !== 'teacher') {
+        if (!$teacher->userRole || $teacher->userRole->role !== 'teacher') {
             return redirect()->back()->with('error', 'Invalid teacher');
         }
 
@@ -57,7 +69,7 @@ class TeacherController extends Controller
 
     public function attachModule(Request $request, User $teacher)
     {
-        if ($teacher->role !== 'teacher') {
+        if (!$teacher->userRole || $teacher->userRole->role !== 'teacher') {
             return redirect()->back()->with('error', 'Invalid teacher');
         }
 
@@ -72,7 +84,7 @@ class TeacherController extends Controller
 
     public function detachModule(User $teacher, Module $module)
     {
-        if ($teacher->role !== 'teacher') {
+        if (!$teacher->userRole || $teacher->userRole->role !== 'teacher') {
             return redirect()->back()->with('error', 'Invalid teacher');
         }
 

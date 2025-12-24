@@ -14,7 +14,7 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
-        $default = ($user && $user->role === 'admin') ? '/admin' : '/dashboard';
+        $default = ($user && $user->isAdmin()) ? '/admin' : '/dashboard';
 
         return redirect()->intended($default);
     }
