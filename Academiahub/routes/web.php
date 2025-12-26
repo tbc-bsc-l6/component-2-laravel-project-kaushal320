@@ -32,10 +32,20 @@ Route::get('/features', function () {
 })->name('features');
 
 // Module detail page
-Route::get('/modules/{module}', function (Module $module) {
+Route::get('/modules/{module}', function (Request $request, Module $module) {
+    $user = $request->user();
+    $enrolledCount = $module->students()->count();
+
+    $isEnrolled = false;
+    if ($user && $user->userRole && $user->userRole->role === 'student') {
+        $isEnrolled = $user->enrolledModules()->where('modules.id', $module->id)->exists();
+    }
+
     return Inertia::render('ModuleDetail', [
         'module' => $module->load(['teachers']),
-        'enrolledCount' => $module->students()->count(),
+        'enrolledCount' => $enrolledCount,
+        'isEnrolled' => $isEnrolled,
+        'isAuthenticated' => $user !== null,
     ]);
 })->name('modules.show');
 
