@@ -69,6 +69,18 @@ class DashboardController extends Controller
             return back()->withErrors(['error' => 'Already enrolled in this module']);
         }
 
+        // Block enrollment if module is unavailable
+        if (! $module->available) {
+            return back()->withErrors(['error' => 'Module is not open for enrollment']);
+        }
+
+        // Enforce module capacity and global max of 10 active students
+        $activeCapacityLimit = min($module->capacity ?? 10, 10);
+        $activeEnrollments = $module->students()->wherePivot('status', null)->count();
+        if ($activeEnrollments >= $activeCapacityLimit) {
+            return back()->withErrors(['error' => 'Module is full. Please try another module or wait for a spot to open']);
+        }
+
         // Enroll
         $student->enrolledModules()->attach($module->id);
 
