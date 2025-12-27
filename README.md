@@ -5,7 +5,6 @@
   <text x="50%" y="50%" text-anchor="middle" fill="#6366F1" font-size="24" font-family="Arial, Helvetica, sans-serif" font-weight="bold" dy=".3em">Assignment</text>
   <text x="50%" y="70%" text-anchor="middle" fill="#6366F1" font-size="24" font-family="Arial, Helvetica, sans-serif" font-weight="bold" dy=".3em">2025</text>
 </svg>
-
 ## Core Assignment
 
 You have been provided with a starting project that already has some models and migrations defined. There is in addition a couple of pre made routes that will allow
