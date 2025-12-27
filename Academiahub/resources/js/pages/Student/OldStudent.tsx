@@ -9,6 +9,7 @@ interface Module {
     title: string;
     code: string;
     pivot?: {
+        created_at?: string | null;
         status?: 'pass' | 'fail' | null;
         completed_at?: string | null;
     };
@@ -62,6 +63,21 @@ export default function OldStudent({
                                             <div className="text-sm text-muted-foreground">
                                                 Module Code: {m.code}
                                             </div>
+                                            {m.pivot?.created_at && (
+                                                <div className="mt-1 text-xs text-muted-foreground">
+                                                    Enrolled:{' '}
+                                                    {new Date(
+                                                        m.pivot.created_at,
+                                                    ).toLocaleDateString(
+                                                        'en-US',
+                                                        {
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                        },
+                                                    )}
+                                                </div>
+                                            )}
                                             {m.pivot?.completed_at && (
                                                 <div className="mt-1 text-xs text-muted-foreground">
                                                     Completed:{' '}
