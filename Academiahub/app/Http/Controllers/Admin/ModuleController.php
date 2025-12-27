@@ -28,7 +28,7 @@ class ModuleController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'capacity' => ['required', 'integer', 'min:1'],
+            'capacity' => ['required', 'integer', 'min:1', 'max:10'],
         ]);
 
         // Generate module field from title (convert to slug)
@@ -46,7 +46,7 @@ class ModuleController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'capacity' => ['required', 'integer', 'min:1'],
+            'capacity' => ['required', 'integer', 'min:1', 'max:10'],
         ]);
 
         // Update module field if title changed
