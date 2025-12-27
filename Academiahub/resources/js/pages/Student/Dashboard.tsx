@@ -11,8 +11,9 @@ interface Module {
     code: string;
     capacity?: number;
     pivot?: {
-        status?: 'pass' | 'fail' | null;
+        created_at?: string;
         completed_at?: string | null;
+        status?: 'pass' | 'fail' | null;
     };
 }
 
@@ -71,6 +72,14 @@ export default function StudentDashboard({
                                             <div className="text-sm text-muted-foreground">
                                                 Code: {m.code}
                                             </div>
+                                            {m.pivot?.created_at && (
+                                                <div className="text-xs text-muted-foreground">
+                                                    Enrolled on:{' '}
+                                                    {new Date(
+                                                        m.pivot.created_at,
+                                                    ).toLocaleDateString()}
+                                                </div>
+                                            )}
                                         </div>
                                         <Badge className="bg-blue-600">
                                             Active
@@ -170,6 +179,14 @@ export default function StudentDashboard({
                                             <div className="text-sm text-muted-foreground">
                                                 Code: {m.code}
                                             </div>
+                                            {m.pivot?.created_at && (
+                                                <div className="text-xs text-muted-foreground">
+                                                    Enrolled on:{' '}
+                                                    {new Date(
+                                                        m.pivot.created_at,
+                                                    ).toLocaleDateString()}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {m.pivot?.status === 'pass' ? (
