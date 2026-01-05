@@ -9,7 +9,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => {
+    resolve: async (name) => {
         const pages = import.meta.glob('./pages/**/*.tsx');
         const path = `./pages/${name}.tsx`;
         const fallbackPath = `./pages/${name.toLowerCase()}.tsx`;
@@ -19,7 +19,8 @@ createInertiaApp({
             throw new Error(`Page not found: ${path}`);
         }
 
-        return page;
+        const module = await page();
+        return module;
     },
     setup({ el, App, props }) {
         const root = createRoot(el);

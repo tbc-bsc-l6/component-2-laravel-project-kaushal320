@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Teacher\ModuleController as TeacherModuleController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Models\Module;
 
 Route::get('/', function () {
@@ -21,6 +22,18 @@ Route::get('/', function () {
             ->get(),
     ]);
 })->name('home');
+
+// Google OAuth routes
+Route::get('/auth/google/test', [GoogleAuthController::class, 'testConfig'])->name('auth.google.test');
+Route::get('/auth/debug', function () {
+    return response()->json([
+        'authenticated' => \Illuminate\Support\Facades\Auth::check(),
+        'user' => \Illuminate\Support\Facades\Auth::user(),
+        'session_id' => session()->getId(),
+    ]);
+})->name('auth.debug');
+Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 // Public informational pages
 Route::get('/about', function () {
