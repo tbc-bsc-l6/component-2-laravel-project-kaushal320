@@ -99,18 +99,22 @@ class GoogleAuthController extends Controller
 
             if ($user) {
                 Log::info('Existing user found', ['user_id' => $user->id, 'email' => $user->email]);
+                $isNewUser = false;
             } else {
                 // User doesn't exist
                 if ($oauthSource === 'login') {
                     // Came from login page but user doesn't exist - redirect to register
                     Log::info('User tried to login but account does not exist. Redirecting to register.');
                     return redirect('/register')
-                        ->with('error', 'No account found with this email. Please sign up first.')
+                        ->with('toast', [
+                            'type' => 'error',
+                            'message' => 'Please register first, then sign in.',
+                        ])
                         ->with('google_email', $googleUser->getEmail())
                         ->with('google_name', $googleUser->getName());
                 }
 
-                // Came from register page - create new user
+                // Came from register page - check if email already exists
                 Log::info('Creating new user from Google OAuth');
 
                 // Get or create student role
@@ -136,6 +140,7 @@ class GoogleAuthController extends Controller
                 ]);
 
                 Log::info('New user created', ['user_id' => $user->id, 'email' => $user->email]);
+                $isNewUser = true;
             }
 
             // Login the user
@@ -163,13 +168,23 @@ class GoogleAuthController extends Controller
                 default => '/dashboard',
             };
 
+            // Prepare toast message
+            $toastMessage = $isNewUser
+                ? 'Account created successfully! Welcome to AcademiaHub.'
+                : 'Logged in successfully!';
+
             Log::info('Redirecting authenticated user', [
                 'user_id' => $user->id,
                 'role' => $user->role,
                 'redirect_path' => $redirectPath,
+                'is_new_user' => $isNewUser,
             ]);
 
-            return redirect($redirectPath);
+            return redirect($redirectPath)
+                ->with('toast', [
+                    'type' => 'success',
+                    'message' => $toastMessage,
+                ]);
         } catch (\Throwable $e) {
             Log::error('=== Google OAuth error (Throwable) ===', [
                 'message' => $e->getMessage(),
@@ -179,7 +194,10 @@ class GoogleAuthController extends Controller
             ]);
 
             return redirect('/login')
-                ->with('error', 'Google authentication failed: ' . $e->getMessage());
+                ->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Google authentication failed: ' . $e->getMessage(),
+                ]);
         }
     }
 }
