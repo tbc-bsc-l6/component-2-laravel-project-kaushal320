@@ -1,6 +1,7 @@
 import InputError from '@/components/input-error';
 import SiteNavbar from '@/components/site-navbar';
 import TextLink from '@/components/text-link';
+import Toast from '@/components/toast';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -17,16 +18,22 @@ interface LoginProps {
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    toast?: {
+        type: 'success' | 'error' | 'info' | 'warning';
+        message: string;
+    };
 }
 
 export default function Login({
     status,
     canResetPassword,
     canRegister,
+    toast,
 }: LoginProps) {
     const [selectedRole, setSelectedRole] = useState<
         'teacher' | 'student' | 'admin' | null
     >(null);
+    const [showToast, setShowToast] = useState(!!toast);
 
     const roleOptions = [
         {
@@ -69,6 +76,15 @@ export default function Login({
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-black dark:bg-black">
+            {/* Toast Notification */}
+            {showToast && toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={() => setShowToast(false)}
+                />
+            )}
+
             {/* Navbar */}
             <header className="border-b border-zinc-800">
                 <SiteNavbar />

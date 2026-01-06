@@ -7,15 +7,30 @@ import { useState } from 'react';
 import InputError from '@/components/input-error';
 import SiteNavbar from '@/components/site-navbar';
 import TextLink from '@/components/text-link';
+import Toast from '@/components/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 
-export default function Register() {
+interface RegisterProps {
+    toast?: {
+        type: 'success' | 'error' | 'info' | 'warning';
+        message: string;
+    };
+    google_email?: string;
+    google_name?: string;
+}
+
+export default function Register({
+    toast,
+    google_email,
+    google_name,
+}: RegisterProps) {
     const [selectedRole, setSelectedRole] = useState<
         'student' | 'teacher' | 'admin' | null
     >(null);
+    const [showToast, setShowToast] = useState(!!toast);
 
     const roleOptions = [
         {
@@ -51,6 +66,15 @@ export default function Register() {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-black dark:bg-black">
+            {/* Toast Notification */}
+            {showToast && toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={() => setShowToast(false)}
+                />
+            )}
+
             {/* Navbar */}
             <header className="border-b border-zinc-800">
                 <SiteNavbar />
