@@ -1,4 +1,5 @@
 import SiteNavbar from '@/components/site-navbar';
+import ChatWidget from '@/components/ChatWidget';
 import { Head, Link } from '@inertiajs/react';
 import {
     Award,
@@ -25,7 +26,12 @@ interface Module {
     }>;
 }
 
-export default function Welcome({ modules = [] }: { modules?: Module[] }) {
+interface WelcomeProps {
+    modules?: Module[];
+    auth?: { user: { id: number; name: string } };
+}
+
+export default function Welcome({ modules = [], auth }: WelcomeProps) {
     return (
         <>
             <Head title="AcademiaHub">
@@ -282,6 +288,7 @@ export default function Welcome({ modules = [] }: { modules?: Module[] }) {
                     </section>
                 </main>
             </div>
+            <ChatWidget user={auth?.user} />
         </>
     );
 }
