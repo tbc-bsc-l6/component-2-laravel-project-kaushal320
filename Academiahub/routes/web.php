@@ -11,6 +11,12 @@ use App\Http\Controllers\Teacher\ModuleController as TeacherModuleController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Models\Module;
+use App\Http\Controllers\ChatController;
+
+Route::post('/chat', [ChatController::class, 'chat'])->name('chat');
+Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
