@@ -147,10 +147,12 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
         setInput('');
         setIsLoading(true);
 
+        let assistantMessageId: string | null = null;
+
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            
-            const response = await fetch('/chat', {
+
+            const response = await fetch('/chat/stream', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,31 +161,76 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                 body: JSON.stringify({ message: userMessage.content }),
             });
 
-            if (!response.ok) {
+            if (!response.ok || !response.body) {
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json();
-            
-            const botMessage: Message = {
-                id: (Date.now() + 1).toString(),
+            assistantMessageId = crypto.randomUUID ? crypto.randomUUID() : `assistant-${Date.now()}`;
+
+            const placeholderMessage: Message = {
+                id: assistantMessageId,
                 role: 'assistant',
-                content: data.response
+                content: '',
             };
-            
-            setMessages(prev => [...prev, botMessage]);
+
+            setMessages(prev => [...prev, placeholderMessage]);
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let assistantText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                assistantText += chunk;
+
+                const updatedContent = assistantText;
+                setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessageId ? { ...msg, content: updatedContent } : msg
+                ));
+            }
+
+            // Flush any remaining decoded text
+            const finalChunk = decoder.decode();
+            if (finalChunk) {
+                assistantText += finalChunk;
+            }
+
+            if (assistantText) {
+                const updatedContent = assistantText;
+                setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessageId ? { ...msg, content: updatedContent } : msg
+                ));
+            }
         } catch (error) {
             console.error('Chat error:', error);
+            const fallbackId = assistantMessageId ?? `assistant-${Date.now()}`;
             const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
+                id: fallbackId,
                 role: 'assistant',
                 content: 'Sorry, I encountered an error. Please try again later.'
             };
-            setMessages(prev => [...prev, errorMessage]);
+
+            setMessages(prev => {
+                const hasPlaceholder = prev.some(msg => msg.id === fallbackId);
+                if (hasPlaceholder) {
+                    return prev.map(msg =>
+                        msg.id === fallbackId ? { ...msg, content: errorMessage.content } : msg
+                    );
+                }
+                return [...prev, errorMessage];
+            });
         } finally {
             setIsLoading(false);
         }
     };
+
+    const hasPendingAssistant = messages.some(msg => msg.role === 'assistant' && msg.content === '');
 
     return (
         <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
@@ -221,7 +268,7 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                                     {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
                                 </div>
                             ))}
-                            {isLoading && (
+                            {isLoading && !hasPendingAssistant && (
                                 <div className="self-start rounded-lg bg-muted px-3 py-2">
                                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                                 </div>

@@ -14,6 +14,7 @@ use App\Models\Module;
 use App\Http\Controllers\ChatController;
 
 Route::post('/chat', [ChatController::class, 'chat'])->name('chat');
+Route::post('/chat/stream', [ChatController::class, 'stream'])->name('chat.stream');
 Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
 
 

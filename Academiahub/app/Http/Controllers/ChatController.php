@@ -35,7 +35,7 @@ class ChatController extends Controller
             $systemPrompt = $this->getSystemPrompt();
 
             $response = Http::timeout(60)->post('http://localhost:11434/api/chat', [
-                'model' => 'llama3', 
+                'model' => 'llama3',
                 'messages' => [
                     [
                         'role' => 'system',
@@ -52,7 +52,7 @@ class ChatController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
                 $botResponse = $data['message']['content'] ?? 'Sorry, I could not understand that.';
-                
+
                 // Save bot response if authenticated
                 if ($user) {
                     ChatMessage::create([
@@ -61,7 +61,7 @@ class ChatController extends Controller
                         'content' => $botResponse
                     ]);
                 }
-                
+
                 return response()->json([
                     'response' => $botResponse
                 ]);
@@ -70,7 +70,6 @@ class ChatController extends Controller
                     'response' => 'Sorry, I am having trouble connecting to my brain right now.'
                 ], 500);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -205,7 +204,7 @@ class ChatController extends Controller
     public function history(Request $request)
     {
         $user = $request->user();
-        
+
         if (!$user) {
             return response()->json(['messages' => []]);
         }
