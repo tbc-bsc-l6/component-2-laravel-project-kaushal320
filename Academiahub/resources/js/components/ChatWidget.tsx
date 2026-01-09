@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Loader2, MessageCircle, Send, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Message {
     id: string;
@@ -15,45 +15,53 @@ function formatMessage(text: string) {
     // Split by lines
     const lines = text.split('\n');
     const formatted: React.ReactNode[] = [];
-    
+
     lines.forEach((line, index) => {
         // Handle numbered lists (1. , 2. , etc.)
-        const numberedListMatch = line.match(/^(\d+)\.\s+\*\*(.+?)\*\*:\s*(.+)$/);
+        const numberedListMatch = line.match(
+            /^(\d+)\.\s+\*\*(.+?)\*\*:\s*(.+)$/,
+        );
         if (numberedListMatch) {
             formatted.push(
                 <div key={index} className="mb-2 flex gap-2">
-                    <span className="font-semibold text-primary">{numberedListMatch[1]}.</span>
+                    <span className="font-semibold text-primary">
+                        {numberedListMatch[1]}.
+                    </span>
                     <div>
-                        <span className="font-semibold">{numberedListMatch[2]}:</span>
+                        <span className="font-semibold">
+                            {numberedListMatch[2]}:
+                        </span>
                         <span className="ml-1">{numberedListMatch[3]}</span>
                     </div>
-                </div>
+                </div>,
             );
             return;
         }
-        
+
         // Handle simple numbered lists
         const simpleNumberMatch = line.match(/^(\d+)\.\s+(.+)$/);
         if (simpleNumberMatch) {
             formatted.push(
                 <div key={index} className="mb-1.5 flex gap-2">
-                    <span className="font-semibold text-primary">{simpleNumberMatch[1]}.</span>
+                    <span className="font-semibold text-primary">
+                        {simpleNumberMatch[1]}.
+                    </span>
                     <span>{formatInlineMarkdown(simpleNumberMatch[2])}</span>
-                </div>
+                </div>,
             );
             return;
         }
-        
+
         // Handle bold headings or regular text
         if (line.trim()) {
             formatted.push(
                 <div key={index} className="mb-1">
                     {formatInlineMarkdown(line)}
-                </div>
+                </div>,
             );
         }
     });
-    
+
     return <div className="space-y-1">{formatted}</div>;
 }
 
@@ -68,7 +76,11 @@ function formatInlineMarkdown(text: string): React.ReactNode {
     });
 }
 
-export default function ChatWidget({ user }: { user?: { id: number; name: string } | null }) {
+export default function ChatWidget({
+    user,
+}: {
+    user?: { id: number; name: string } | null;
+}) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
@@ -96,36 +108,45 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                             setMessages(data.messages);
                         } else {
                             // No history, show personalized welcome
-                            setMessages([{
-                                id: 'welcome',
-                                role: 'assistant',
-                                content: `Hello ${user.name}! Welcome back to Academiahub. How can I help you today?`
-                            }]);
+                            setMessages([
+                                {
+                                    id: 'welcome',
+                                    role: 'assistant',
+                                    content: `Hello ${user.name}! Welcome back to Academiahub. How can I help you today?`,
+                                },
+                            ]);
                         }
                     } else {
                         // Fallback welcome
-                        setMessages([{
-                            id: 'welcome',
-                            role: 'assistant',
-                            content: `Hello ${user.name}! How can I help you with Academiahub?`
-                        }]);
+                        setMessages([
+                            {
+                                id: 'welcome',
+                                role: 'assistant',
+                                content: `Hello ${user.name}! How can I help you with Academiahub?`,
+                            },
+                        ]);
                     }
                 } catch (error) {
                     console.error('Failed to load chat history:', error);
-                    setMessages([{
-                        id: 'welcome',
-                        role: 'assistant',
-                        content: `Hello ${user.name}! How can I help you today?`
-                    }]);
+                    setMessages([
+                        {
+                            id: 'welcome',
+                            role: 'assistant',
+                            content: `Hello ${user.name}! How can I help you today?`,
+                        },
+                    ]);
                 }
                 setHistoryLoaded(true);
             } else if (!user && !historyLoaded) {
                 // Guest user
-                setMessages([{
-                    id: 'welcome',
-                    role: 'assistant',
-                    content: 'Hello! How can I help you with Academiahub today?'
-                }]);
+                setMessages([
+                    {
+                        id: 'welcome',
+                        role: 'assistant',
+                        content:
+                            'Hello! How can I help you with Academiahub today?',
+                    },
+                ]);
                 setHistoryLoaded(true);
             }
         };
@@ -140,17 +161,19 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
         const userMessage: Message = {
             id: Date.now().toString(),
             role: 'user',
-            content: input.trim()
+            content: input.trim(),
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        setMessages((prev) => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
         let assistantMessageId: string | null = null;
 
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute('content');
 
             const response = await fetch('/chat/stream', {
                 method: 'POST',
@@ -165,7 +188,9 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                 throw new Error('Network response was not ok');
             }
 
-            assistantMessageId = crypto.randomUUID ? crypto.randomUUID() : `assistant-${Date.now()}`;
+            assistantMessageId = crypto.randomUUID
+                ? crypto.randomUUID()
+                : `assistant-${Date.now()}`;
 
             const placeholderMessage: Message = {
                 id: assistantMessageId,
@@ -173,7 +198,7 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                 content: '',
             };
 
-            setMessages(prev => [...prev, placeholderMessage]);
+            setMessages((prev) => [...prev, placeholderMessage]);
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -190,9 +215,13 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                 assistantText += chunk;
 
                 const updatedContent = assistantText;
-                setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessageId ? { ...msg, content: updatedContent } : msg
-                ));
+                setMessages((prev) =>
+                    prev.map((msg) =>
+                        msg.id === assistantMessageId
+                            ? { ...msg, content: updatedContent }
+                            : msg,
+                    ),
+                );
             }
 
             // Flush any remaining decoded text
@@ -203,9 +232,13 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
 
             if (assistantText) {
                 const updatedContent = assistantText;
-                setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessageId ? { ...msg, content: updatedContent } : msg
-                ));
+                setMessages((prev) =>
+                    prev.map((msg) =>
+                        msg.id === assistantMessageId
+                            ? { ...msg, content: updatedContent }
+                            : msg,
+                    ),
+                );
             }
         } catch (error) {
             console.error('Chat error:', error);
@@ -213,14 +246,19 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
             const errorMessage: Message = {
                 id: fallbackId,
                 role: 'assistant',
-                content: 'Sorry, I encountered an error. Please try again later.'
+                content:
+                    'Sorry, I encountered an error. Please try again later.',
             };
 
-            setMessages(prev => {
-                const hasPlaceholder = prev.some(msg => msg.id === fallbackId);
+            setMessages((prev) => {
+                const hasPlaceholder = prev.some(
+                    (msg) => msg.id === fallbackId,
+                );
                 if (hasPlaceholder) {
-                    return prev.map(msg =>
-                        msg.id === fallbackId ? { ...msg, content: errorMessage.content } : msg
+                    return prev.map((msg) =>
+                        msg.id === fallbackId
+                            ? { ...msg, content: errorMessage.content }
+                            : msg,
                     );
                 }
                 return [...prev, errorMessage];
@@ -230,42 +268,48 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
         }
     };
 
-    const hasPendingAssistant = messages.some(msg => msg.role === 'assistant' && msg.content === '');
+    const hasPendingAssistant = messages.some(
+        (msg) => msg.role === 'assistant' && msg.content === '',
+    );
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
+        <div className="fixed right-4 bottom-4 z-50 flex flex-col items-end">
             {isOpen && (
-                <div className="mb-4 w-[350px] overflow-hidden rounded-lg border bg-white shadow-xl dark:bg-zinc-900 sm:w-[380px]">
+                <div className="mb-4 w-[350px] overflow-hidden rounded-lg border bg-white shadow-xl sm:w-[380px] dark:bg-zinc-900">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b bg-primary px-4 py-3 text-primary-foreground">
                         <div className="flex items-center gap-2">
                             <MessageCircle className="h-5 w-5" />
-                            <span className="font-semibold">Academia Assistant</span>
+                            <span className="font-semibold">
+                                Academia Assistant
+                            </span>
                         </div>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 hover:bg-primary-foreground/20 text-primary-foreground"
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
                             onClick={() => setIsOpen(false)}
                         >
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
-                    
+
                     {/* Messages */}
-                    <div className="h-[400px] overflow-y-auto p-4 scrollbar-thin">
+                    <div className="scrollbar-thin h-[400px] overflow-y-auto p-4">
                         <div className="flex flex-col gap-4">
                             {messages.map((msg) => (
                                 <div
                                     key={msg.id}
                                     className={cn(
-                                        "max-w-[85%] rounded-lg px-4 py-3 text-sm",
-                                        msg.role === 'user' 
-                                            ? "self-end bg-primary text-primary-foreground" 
-                                            : "self-start bg-muted text-foreground"
+                                        'max-w-[85%] rounded-lg px-4 py-3 text-sm',
+                                        msg.role === 'user'
+                                            ? 'self-end bg-primary text-primary-foreground'
+                                            : 'self-start bg-muted text-foreground',
                                     )}
                                 >
-                                    {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
+                                    {msg.role === 'assistant'
+                                        ? formatMessage(msg.content)
+                                        : msg.content}
                                 </div>
                             ))}
                             {isLoading && !hasPendingAssistant && (
@@ -287,7 +331,11 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
                                 className="flex-1"
                                 disabled={isLoading}
                             />
-                            <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+                            <Button
+                                type="submit"
+                                size="icon"
+                                disabled={isLoading || !input.trim()}
+                            >
                                 <Send className="h-4 w-4" />
                             </Button>
                         </div>
@@ -298,14 +346,14 @@ export default function ChatWidget({ user }: { user?: { id: number; name: string
             {!isOpen && (
                 <div className="relative flex items-center justify-end">
                     {/* Animated help text that slides in and merges */}
-                    <div className="absolute right-14 animate-slide-merge whitespace-nowrap">
-                        <span className="text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+                    <div className="animate-slide-merge absolute right-14 whitespace-nowrap">
+                        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-base font-bold text-transparent dark:from-blue-400 dark:to-purple-400">
                             Need help? Ask me! 💬
                         </span>
                     </div>
                 </div>
             )}
-            
+
             <Button
                 size="icon"
                 className="h-14 w-14 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
