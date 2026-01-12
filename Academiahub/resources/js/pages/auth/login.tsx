@@ -287,15 +287,19 @@ export default function Login({
                                                             >
                                                                 Password
                                                             </Label>
-                                                            {canResetPassword && (
-                                                                <TextLink
-                                                                    href={request()}
-                                                                    className="text-xs font-semibold text-blue-400 hover:text-blue-300"
-                                                                    tabIndex={5}
-                                                                >
-                                                                    Forgot?
-                                                                </TextLink>
-                                                            )}
+                                                            {canResetPassword &&
+                                                                selectedRole !==
+                                                                    'admin' && (
+                                                                    <TextLink
+                                                                        href={request()}
+                                                                        className="text-xs font-semibold text-blue-400 hover:text-blue-300"
+                                                                        tabIndex={
+                                                                            5
+                                                                        }
+                                                                    >
+                                                                        Forgot?
+                                                                    </TextLink>
+                                                                )}
                                                         </div>
                                                         <Input
                                                             id="password"
