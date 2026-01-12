@@ -171,16 +171,32 @@ export default function ChatWidget({
         let assistantMessageId: string | null = null;
 
         try {
-            const csrfToken = document
-                .querySelector('meta[name="csrf-token"]')
-                ?.getAttribute('content');
+            // Get CSRF token from cookie or meta tag
+            const getCsrfToken = () => {
+                // Try to get from cookie first (Laravel sets XSRF-TOKEN cookie)
+                const cookies = document.cookie.split(';');
+                for (const cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'XSRF-TOKEN') {
+                        return decodeURIComponent(value);
+                    }
+                }
+                // Fallback to meta tag
+                return document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute('content') || '';
+            };
+
+            const csrfToken = getCsrfToken();
 
             const response = await fetch('/chat/stream', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken || '',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-XSRF-TOKEN': csrfToken,
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify({ message: userMessage.content }),
             });
 
