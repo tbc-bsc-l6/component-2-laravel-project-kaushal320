@@ -19,8 +19,18 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { BookOpen, Mail, Plus, Trash2, Users } from 'lucide-react';
-import { useState } from 'react';
+import {
+    BookOpen,
+    CheckCircle2,
+    Mail,
+    Plus,
+    Search,
+    Shield,
+    Trash2,
+    Users,
+    X,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: '/admin' },
@@ -32,6 +42,10 @@ interface Teacher {
     name: string;
     email: string;
     modules: Module[];
+    userRole?: {
+        id: number;
+        role: string;
+    };
 }
 
 interface Module {
@@ -53,6 +67,17 @@ export default function TeachersIndex({
     );
     const [selectedModuleForAttach, setSelectedModuleForAttach] =
         useState<Module | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredTeachers = useMemo(() => {
+        return teachers.filter((teacher) => {
+            const matchesSearch =
+                searchTerm === '' ||
+                teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                teacher.email.toLowerCase().includes(searchTerm.toLowerCase());
+            return matchesSearch;
+        });
+    }, [teachers, searchTerm]);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         name: '',
@@ -107,6 +132,10 @@ export default function TeachersIndex({
         }
     }
 
+    function changeTeacherRole(teacherId: number, role: string) {
+        router.patch(`/admin/users/${teacherId}/role`, { role });
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Manage Teachers" />
@@ -132,6 +161,28 @@ export default function TeachersIndex({
                                 Back to Dashboard
                             </Button>
                         </Link>
+                    </div>
+                </div>
+
+                {/* Search */}
+                <div className="flex items-center gap-4">
+                    <div className="relative flex-1">
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pr-10 pl-10"
+                        />
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -301,15 +352,17 @@ export default function TeachersIndex({
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold">
-                            {teachers.length === 0
-                                ? 'No teachers yet'
-                                : `${teachers.length} Teacher${
-                                      teachers.length !== 1 ? 's' : ''
-                                  }`}
+                            {filteredTeachers.length === 0 && searchTerm
+                                ? 'No teachers found'
+                                : teachers.length === 0
+                                  ? 'No teachers yet'
+                                  : `${filteredTeachers.length} Teacher${
+                                        filteredTeachers.length !== 1 ? 's' : ''
+                                    }`}
                         </h2>
                     </div>
 
-                    {teachers.length === 0 ? (
+                    {filteredTeachers.length === 0 ? (
                         <Card className="border-dashed border-emerald-400/30 bg-emerald-500/5">
                             <CardContent className="flex min-h-[300px] items-center justify-center">
                                 <div className="space-y-4 text-center">
@@ -318,26 +371,33 @@ export default function TeachersIndex({
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold">
-                                            No teachers yet
+                                            {searchTerm
+                                                ? 'No teachers found'
+                                                : 'No teachers yet'}
                                         </h3>
                                         <p className="mt-1 text-muted-foreground">
-                                            Create your first teacher to get
-                                            started
+                                            {searchTerm
+                                                ? 'Try adjusting your search criteria'
+                                                : 'Create your first teacher to get started'}
                                         </p>
                                     </div>
-                                    <Button
-                                        onClick={() => setExpandedForm(true)}
-                                        className="mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-                                    >
-                                        <Plus className="mr-2 size-4" />
-                                        Create First Teacher
-                                    </Button>
+                                    {!searchTerm && (
+                                        <Button
+                                            onClick={() =>
+                                                setExpandedForm(true)
+                                            }
+                                            className="mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                                        >
+                                            <Plus className="mr-2 size-4" />
+                                            Create First Teacher
+                                        </Button>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
                     ) : (
                         <div className="grid gap-4">
-                            {teachers.map((teacher) => (
+                            {filteredTeachers.map((teacher) => (
                                 <Card
                                     key={teacher.id}
                                     className="group border-emerald-400/30 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/70 hover:shadow-lg hover:shadow-emerald-500/30"
@@ -372,6 +432,100 @@ export default function TeachersIndex({
                                                                 ? 's'
                                                                 : ''}
                                                         </Badge>
+
+                                                        {/* Role Change Button */}
+                                                        <Dialog>
+                                                            <DialogTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className={`cursor-pointer transition-all hover:scale-105 ${
+                                                                        teacher
+                                                                            .userRole
+                                                                            ?.role ===
+                                                                        'teacher'
+                                                                            ? 'border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20'
+                                                                            : 'border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20'
+                                                                    }`}
+                                                                >
+                                                                    <Shield className="mr-2 size-4" />
+                                                                    Change Role
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent>
+                                                                <DialogHeader>
+                                                                    <DialogTitle>
+                                                                        Change
+                                                                        Role
+                                                                    </DialogTitle>
+                                                                    <DialogDescription>
+                                                                        Select a
+                                                                        new role
+                                                                        for{' '}
+                                                                        {
+                                                                            teacher.name
+                                                                        }
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                                <div className="space-y-2">
+                                                                    {[
+                                                                        'student',
+                                                                        'teacher',
+                                                                    ].map(
+                                                                        (
+                                                                            role,
+                                                                        ) => (
+                                                                            <Button
+                                                                                key={
+                                                                                    role
+                                                                                }
+                                                                                onClick={() =>
+                                                                                    changeTeacherRole(
+                                                                                        teacher.id,
+                                                                                        role,
+                                                                                    )
+                                                                                }
+                                                                                variant={
+                                                                                    teacher
+                                                                                        .userRole
+                                                                                        ?.role ===
+                                                                                    role
+                                                                                        ? 'default'
+                                                                                        : 'outline'
+                                                                                }
+                                                                                className={`w-full justify-start ${
+                                                                                    teacher
+                                                                                        .userRole
+                                                                                        ?.role ===
+                                                                                    role
+                                                                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                                                                                        : ''
+                                                                                }`}
+                                                                            >
+                                                                                <Shield className="mr-2 size-4" />
+                                                                                Make{' '}
+                                                                                {role
+                                                                                    .charAt(
+                                                                                        0,
+                                                                                    )
+                                                                                    .toUpperCase() +
+                                                                                    role.slice(
+                                                                                        1,
+                                                                                    )}
+                                                                                {teacher
+                                                                                    .userRole
+                                                                                    ?.role ===
+                                                                                    role && (
+                                                                                    <CheckCircle2 className="ml-auto size-4" />
+                                                                                )}
+                                                                            </Button>
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
                                                     </div>
 
                                                     {/* Assigned Modules */}

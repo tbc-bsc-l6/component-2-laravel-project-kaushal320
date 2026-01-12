@@ -9,6 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -16,12 +17,15 @@ import {
     AlertCircle,
     BookOpen,
     CheckCircle2,
+    Filter,
     Mail,
+    Search,
     Shield,
     Trash2,
     Users,
+    X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: '/admin' },
@@ -32,6 +36,7 @@ interface Student {
     id: number;
     name: string;
     email: string;
+    is_old_student: boolean;
     userRole?: {
         id: number;
         role: string;
@@ -55,6 +60,28 @@ export default function StudentsIndex({
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(
         null,
     );
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState<'all' | 'current' | 'old'>(
+        'all',
+    );
+
+    const filteredStudents = useMemo(() => {
+        return students.filter((student) => {
+            // Search filter
+            const matchesSearch =
+                searchTerm === '' ||
+                student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                student.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+            // Status filter
+            const matchesStatus =
+                filterStatus === 'all' ||
+                (filterStatus === 'current' && !student.is_old_student) ||
+                (filterStatus === 'old' && student.is_old_student);
+
+            return matchesSearch && matchesStatus;
+        });
+    }, [students, searchTerm, filterStatus]);
 
     function changeStudentRole(studentId: number, role: string) {
         router.patch(`/admin/users/${studentId}/role`, { role });
@@ -70,6 +97,10 @@ export default function StudentsIndex({
         if (confirm('Are you sure you want to delete this student?')) {
             router.delete(`/admin/students/${studentId}`);
         }
+    }
+
+    function toggleOldStudent(studentId: number) {
+        router.post(`/admin/students/${studentId}/toggle-old`);
     }
 
     return (
@@ -100,19 +131,77 @@ export default function StudentsIndex({
                     </div>
                 </div>
 
+                {/* Search and Filter */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="relative max-w-md flex-1">
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pr-10 pl-10"
+                        />
+                        {searchTerm && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="absolute top-1/2 right-1 size-6 -translate-y-1/2 p-0"
+                                onClick={() => setSearchTerm('')}
+                            >
+                                <X className="size-4" />
+                            </Button>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Filter className="size-4 text-muted-foreground" />
+                        <Button
+                            variant={
+                                filterStatus === 'all' ? 'default' : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterStatus('all')}
+                        >
+                            All ({students.length})
+                        </Button>
+                        <Button
+                            variant={
+                                filterStatus === 'current'
+                                    ? 'default'
+                                    : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterStatus('current')}
+                        >
+                            Current (
+                            {students.filter((s) => !s.is_old_student).length})
+                        </Button>
+                        <Button
+                            variant={
+                                filterStatus === 'old' ? 'default' : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterStatus('old')}
+                        >
+                            Old (
+                            {students.filter((s) => s.is_old_student).length})
+                        </Button>
+                    </div>
+                </div>
+
                 {/* Students List */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold">
-                            {students.length === 0
-                                ? 'No students yet'
-                                : `${students.length} Student${
-                                      students.length !== 1 ? 's' : ''
+                            {filteredStudents.length === 0
+                                ? 'No students found'
+                                : `${filteredStudents.length} Student${
+                                      filteredStudents.length !== 1 ? 's' : ''
                                   }`}
                         </h2>
                     </div>
 
-                    {students.length === 0 ? (
+                    {filteredStudents.length === 0 ? (
                         <Card className="border-dashed border-blue-400/30 bg-blue-500/5">
                             <CardContent className="flex min-h-[300px] items-center justify-center">
                                 <div className="space-y-4 text-center">
@@ -133,7 +222,7 @@ export default function StudentsIndex({
                         </Card>
                     ) : (
                         <div className="grid gap-4">
-                            {students.map((student) => (
+                            {filteredStudents.map((student) => (
                                 <Card
                                     key={student.id}
                                     className="group border-blue-400/30 transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-400/70 hover:shadow-lg hover:shadow-blue-500/30"
@@ -160,34 +249,26 @@ export default function StudentsIndex({
                                                             <DialogTrigger
                                                                 asChild
                                                             >
-                                                                <Badge
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
                                                                     className={`cursor-pointer transition-all hover:scale-105 ${
                                                                         student
                                                                             .userRole
                                                                             ?.role ===
                                                                         'student'
-                                                                            ? 'bg-blue-600 hover:bg-blue-700'
+                                                                            ? 'border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20'
                                                                             : student
                                                                                     .userRole
                                                                                     ?.role ===
                                                                                 'teacher'
-                                                                              ? 'bg-emerald-600 hover:bg-emerald-700'
-                                                                              : 'bg-purple-600 hover:bg-purple-700'
+                                                                              ? 'border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20'
+                                                                              : 'border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20'
                                                                     }`}
                                                                 >
-                                                                    <Shield className="mr-1 size-3" />
-                                                                    {student
-                                                                        .userRole
-                                                                        ?.role &&
-                                                                        student.userRole.role
-                                                                            .charAt(
-                                                                                0,
-                                                                            )
-                                                                            .toUpperCase() +
-                                                                            student.userRole.role.slice(
-                                                                                1,
-                                                                            )}
-                                                                </Badge>
+                                                                    <Shield className="mr-2 size-4" />
+                                                                    Change Role
+                                                                </Button>
                                                             </DialogTrigger>
                                                             <DialogContent>
                                                                 <DialogHeader>
@@ -261,6 +342,28 @@ export default function StudentsIndex({
                                                                 </div>
                                                             </DialogContent>
                                                         </Dialog>
+                                                    </div>
+
+                                                    {/* Old Student Badge & Toggle */}
+                                                    <div className="mt-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                toggleOldStudent(
+                                                                    student.id,
+                                                                )
+                                                            }
+                                                            className={`transition-all ${
+                                                                student.is_old_student
+                                                                    ? 'border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                                                                    : 'border-gray-500/50 bg-gray-500/10 hover:bg-gray-500/20'
+                                                            }`}
+                                                        >
+                                                            {student.is_old_student
+                                                                ? '👴 Old Student'
+                                                                : '👨‍🎓 Current Student'}
+                                                        </Button>
                                                     </div>
 
                                                     {/* Enrolled Modules */}

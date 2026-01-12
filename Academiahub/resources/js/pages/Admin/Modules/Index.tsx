@@ -17,12 +17,15 @@ import {
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
+    Filter,
     Plus,
+    Search,
     ToggleLeft,
     ToggleRight,
     Users,
+    X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: '/admin' },
@@ -40,12 +43,32 @@ interface Module {
 export default function Index({ modules }: { modules: Module[] }) {
     const [expandedForm, setExpandedForm] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterAvailable, setFilterAvailable] = useState<
+        'all' | 'available' | 'unavailable'
+    >('all');
+
+    const filteredModules = useMemo(() => {
+        return modules.filter((module) => {
+            const matchesSearch =
+                searchTerm === '' ||
+                module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                module.code.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesFilter =
+                filterAvailable === 'all' ||
+                (filterAvailable === 'available' && module.available) ||
+                (filterAvailable === 'unavailable' && !module.available);
+
+            return matchesSearch && matchesFilter;
+        });
+    }, [modules, searchTerm, filterAvailable]);
 
     const itemsPerPage = 5;
-    const totalPages = Math.ceil(modules.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredModules.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginatedModules = modules.slice(startIndex, endIndex);
+    const paginatedModules = filteredModules.slice(startIndex, endIndex);
 
     const { data, setData, post, processing, reset } = useForm({
         title: '',
@@ -98,6 +121,76 @@ export default function Index({ modules }: { modules: Module[] }) {
                                 Back to Dashboard
                             </Button>
                         </Link>
+                    </div>
+                </div>
+
+                {/* Search and Filter */}
+                <div className="flex items-center gap-4">
+                    <div className="relative flex-1">
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Search by title or code..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pr-10 pl-10"
+                        />
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Filter className="size-4 text-muted-foreground" />
+                        <Button
+                            variant={
+                                filterAvailable === 'all'
+                                    ? 'default'
+                                    : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterAvailable('all')}
+                        >
+                            All ({modules.length})
+                        </Button>
+                        <Button
+                            variant={
+                                filterAvailable === 'available'
+                                    ? 'default'
+                                    : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterAvailable('available')}
+                            className={
+                                filterAvailable === 'available'
+                                    ? 'bg-green-600 hover:bg-green-700'
+                                    : ''
+                            }
+                        >
+                            Available (
+                            {modules.filter((m) => m.available).length})
+                        </Button>
+                        <Button
+                            variant={
+                                filterAvailable === 'unavailable'
+                                    ? 'default'
+                                    : 'outline'
+                            }
+                            size="sm"
+                            onClick={() => setFilterAvailable('unavailable')}
+                            className={
+                                filterAvailable === 'unavailable'
+                                    ? 'bg-gray-600 hover:bg-gray-700'
+                                    : ''
+                            }
+                        >
+                            Unavailable (
+                            {modules.filter((m) => !m.available).length})
+                        </Button>
                     </div>
                 </div>
 
@@ -180,6 +273,7 @@ export default function Index({ modules }: { modules: Module[] }) {
                                     <Input
                                         type="number"
                                         min="1"
+                                        max="10"
                                         placeholder="Enter capacity"
                                         value={data.capacity}
                                         onChange={(e) =>

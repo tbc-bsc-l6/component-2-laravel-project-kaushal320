@@ -25,6 +25,7 @@ interface Student {
     email: string;
     pivot?: {
         status?: 'pass' | 'fail' | null;
+        started_at?: string | null;
         completed_at?: string | null;
     };
 }
@@ -187,6 +188,15 @@ export default function TeacherModulesIndex({
                                                                         }
                                                                     </div>
                                                                     <div className="mt-1 text-xs">
+                                                                        {s.pivot
+                                                                            ?.started_at && (
+                                                                            <div className="text-muted-foreground">
+                                                                                Started:{' '}
+                                                                                {new Date(
+                                                                                    s.pivot.started_at,
+                                                                                ).toLocaleDateString()}
+                                                                            </div>
+                                                                        )}
                                                                         Status:{' '}
                                                                         {s.pivot
                                                                             ?.status
@@ -195,10 +205,11 @@ export default function TeacherModulesIndex({
                                                                         {s.pivot
                                                                             ?.completed_at && (
                                                                             <span className="ml-2 text-muted-foreground">
-                                                                                (
+                                                                                (Completed:
                                                                                 {new Date(
                                                                                     s.pivot.completed_at,
-                                                                                ).toLocaleString()}
+                                                                                ).toLocaleDateString()}
+
                                                                                 )
                                                                             </span>
                                                                         )}
