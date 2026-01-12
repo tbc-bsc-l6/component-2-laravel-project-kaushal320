@@ -82,7 +82,9 @@ class DashboardController extends Controller
         }
 
         // Enroll
-        $student->enrolledModules()->attach($module->id);
+        $student->enrolledModules()->attach($module->id, [
+            'started_at' => now(),
+        ]);
 
         return back()->with('success', "Enrolled in {$module->title}");
     }

@@ -19,7 +19,19 @@ class StudentController extends Controller
     {
         // Get users with student role
         $studentRoleId = \Illuminate\Support\Facades\DB::table('user_roles')->where('role', 'student')->value('id');
-        $students = User::where('user_role_id', $studentRoleId)->with('enrolledModules')->get();
+        $students = User::where('user_role_id', $studentRoleId)
+            ->with('enrolledModules')
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'email' => $student->email,
+                    'userRole' => $student->userRole,
+                    'is_old_student' => $student->is_old_student,
+                    'enrolledModules' => $student->enrolledModules()->get(['modules.id', 'modules.title', 'modules.code'])->toArray(),
+                ];
+            });
         $modules = Module::all();
 
         return Inertia::render('Admin/Students/Index', [
@@ -74,5 +86,16 @@ class StudentController extends Controller
         $user->update(['user_role_id' => $roleId]);
 
         return redirect()->back()->with('success', 'User role updated successfully');
+    }
+
+    public function toggleOldStudent(User $student)
+    {
+        if (!$student->userRole || $student->userRole->role !== 'student') {
+            return redirect()->back()->with('error', 'Invalid student');
+        }
+
+        $student->update(['is_old_student' => !$student->is_old_student]);
+
+        return redirect()->back()->with('success', 'Student status updated');
     }
 }
