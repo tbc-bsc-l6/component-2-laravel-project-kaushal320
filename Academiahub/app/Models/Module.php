@@ -32,7 +32,7 @@ class Module extends Model
     public function students()
     {
         return $this->belongsToMany(User::class, 'module_student', 'module_id', 'student_id')
-            ->withPivot(['status', 'completed_at'])
+            ->withPivot(['status', 'started_at', 'completed_at'])
             ->withTimestamps();
     }
 }

@@ -101,31 +101,20 @@ class GoogleAuthController extends Controller
                 Log::info('Existing user found', ['user_id' => $user->id, 'email' => $user->email]);
                 $isNewUser = false;
             } else {
-                // User doesn't exist
-                if ($oauthSource === 'login') {
-                    // Came from login page but user doesn't exist - redirect to register
-                    Log::info('User tried to login but account does not exist. Redirecting to register.');
-                    return redirect('/register')
-                        ->with('toast', [
-                            'type' => 'error',
-                            'message' => 'Please register first, then sign in.',
-                        ])
-                        ->with('google_email', $googleUser->getEmail())
-                        ->with('google_name', $googleUser->getName());
-                }
-
-                // Came from register page - check if email already exists
+                // User doesn't exist - create new account regardless of source
                 Log::info('Creating new user from Google OAuth');
 
                 // Get or create student role
-                $studentRole = UserRole::where('name', 'student')->first();
+                $studentRole = UserRole::where('role', 'student')->first();
 
                 if (!$studentRole) {
                     Log::info('Student role not found, creating it');
-                    $studentRole = UserRole::create([
-                        'name' => 'student',
-                        'display_name' => 'Student',
+                    $roleId = \Illuminate\Support\Facades\DB::table('user_roles')->insertGetId([
+                        'role' => 'student',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
+                    $studentRole = UserRole::find($roleId);
                 }
 
                 // Create new user
@@ -135,7 +124,6 @@ class GoogleAuthController extends Controller
                     'password' => Hash::make(Str::random(24)),
                     'email_verified_at' => now(),
                     'user_role_id' => $studentRole->id,
-                    'role' => 'student',
                     'is_old_student' => false,
                 ]);
 
