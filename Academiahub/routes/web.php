@@ -119,6 +119,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
     Route::delete('students/{student}/modules/{module}', [StudentController::class, 'removeFromModule'])->name('students.remove-from-module');
     Route::patch('users/{user}/role', [StudentController::class, 'changeRole'])->name('users.change-role');
+    Route::post('students/{student}/toggle-old', [StudentController::class, 'toggleOldStudent'])->name('students.toggle-old');
 });
 
 require __DIR__ . '/settings.php';

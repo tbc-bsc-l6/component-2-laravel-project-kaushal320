@@ -182,9 +182,11 @@ export default function ChatWidget({
                     }
                 }
                 // Fallback to meta tag
-                return document
-                    .querySelector('meta[name="csrf-token"]')
-                    ?.getAttribute('content') || '';
+                return (
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || ''
+                );
             };
 
             const csrfToken = getCsrfToken();
