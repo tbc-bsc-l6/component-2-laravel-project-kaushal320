@@ -28,9 +28,8 @@ class CreateNewUser implements CreatesNewUsers
                 'max:255',
                 Rule::unique(User::class),
             ],
-            // Restrict self-registration to students only
-            // Teachers and admins are created by admin only
-            'role' => ['required', 'string', Rule::in(['student'])],
+            // Self-registration is always as a student; role input is optional and ignored unless 'student'.
+            'role' => ['nullable', 'string', Rule::in(['student'])],
             'password' => $this->passwordRules(),
         ])->validate();
 
